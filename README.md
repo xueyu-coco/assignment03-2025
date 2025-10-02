@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Image Generator
 
 A comprehensive AI-powered image generation toolkit built with Stable Diffusion and Streamlit. This project provides multiple applications for creating stunning images from text descriptions, applying image filters, and real-time video processing.
@@ -249,3 +250,6 @@ This project is open-source and available under the MIT License.
 **Happy Creating! 🎨✨**
 
 For questions or support, please open an issue or contact the development team.
+=======
+# assignment03-2025
+>>>>>>> 24f1596a9bf32225d8afab231e271d2158ddfa3f
