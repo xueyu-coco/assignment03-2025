@@ -1,148 +1,77 @@
-# AI Programming Course - Assignment 03# AI Image Generator
+# AI Programming Course - Assignment 03
 
+A comprehensive collection of AI-powered applications featuring interactive chatbots, fortune-telling systems, and advanced image generation tools. This repository contains two major projects developed as part of the AI programming course.
 
+## 📁 Project Overview
 
-A comprehensive collection of AI-powered applications featuring interactive chatbots, fortune-telling systems, and advanced image generation tools. This repository contains two major projects developed as part of the AI programming course.A comprehensive AI-powered image generation toolkit built with Stable Diffusion and Streamlit. This project provides multiple applications for creating stunning images from text descriptions, applying image filters, and real-time video processing.
+### 🍀 [Week 04: Lucky AI - Fortune-Telling Chatbot](./week04-LUCKY_AI/)
+An interactive AI chatbot application featuring tarot card readings, horoscope predictions, and advanced conversational AI with memory capabilities.
 
-
-
-## 📁 Project Overview## 🌟 Features
-
-
-
-### 🍀 [Week 04: Lucky AI - Fortune-Telling Chatbot](./week04-LUCKY_AI/)### 🎨 Image Generation
-
-An interactive AI chatbot application featuring tarot card readings, horoscope predictions, and advanced conversational AI with memory capabilities.- **Text-to-Image**: Transform text descriptions into beautiful images using Stable Diffusion
-
-- **Preset Prompts**: Quick start with pre-configured prompts for landscapes, animals, sci-fi scenes, and more
-
-### 🎨 [Week 05: AI Image Generator](./week05-AI_IMAGE_GENERATOR/)- **Advanced Controls**: Fine-tune generation with adjustable steps and guidance scale
-
-A comprehensive AI-powered image generation toolkit built with Stable Diffusion, featuring multiple applications for creating stunning images from text descriptions.- **Negative Prompts**: Specify what you don't want in the generated images
-
-- **GPU Acceleration**: Automatic GPU detection and acceleration when available
+### 🎨 [Week 05: AI Creative Studio](./week05-AI_IMAGE_GENERATOR/)
+A comprehensive AI-powered creative toolkit built with Stable Diffusion, featuring image generation, real-time video processing, and face detection with dynamic AI overlays.
 
 ---
 
-### 🖼️ Image Processing
+## 🍀 Week 04: Lucky AI - Fortune-Telling Assistant
 
-## 🍀 Week 04: Lucky AI - Fortune-Telling Assistant- **Advanced Filters**: Apply various image processing effects
-
-- **ControlNet Integration**: Precise image control using edge detection and other techniques
-
-### ✨ Key Features- **Batch Processing**: Handle multiple images efficiently
-
+### ✨ Key Features
 - **🔮 Interactive Tarot Reading**: 22 Major Arcana cards with detailed interpretations
-
-- **⭐ Daily Horoscope**: Complete zodiac predictions for all 12 signs### 📹 Video Processing
-
-- **🧠 Advanced Memory System**: Remembers user information across sessions- **Real-time Filters**: Apply effects to live video streams
-
-- **🎭 Multiple AI Personalities**: Programming tutor, creative writer, life coach, and more- **Video Enhancement**: Improve video quality with AI-powered filters
-
+- **⭐ Daily Horoscope**: Complete zodiac predictions for all 12 signs
+- **🧠 Advanced Memory System**: Remembers user information across sessions
+- **🎭 Multiple AI Personalities**: Programming tutor, creative writer, life coach, and more
 - **🎤 Voice Input Interface**: Simulated voice-to-text functionality
-
-- **🎨 Enhanced UI**: Typewriter effects and modern design### 🌍 Multi-language Support
-
-- **Bilingual Interface**: Support for English and Chinese languages
-
-### 🛠️ Technical Stack- **Localized Content**: Fully translated user interface and instructions
-
-- **Framework**: Streamlit web application
-
-- **AI Backend**: LMStudio with local AI model hosting## 🚀 Quick Start
-
-- **API**: OpenAI-compatible interface
-
-- **Features**: Session state management, custom CSS styling### Prerequisites
-
-- Python 3.8 or higher
-
-### 🚀 Quick Start- NVIDIA GPU (recommended for faster generation)
-
-```bash- CUDA toolkit (for GPU acceleration)
-
-cd week04-LUCKY_AI
-
-pip install -r requirements.txt### Installation
-
-streamlit run lmstudio_chatbot.py
-
-```1. **Clone the repository**
-
-   ```bash
-
-### 🎯 Use Cases   git clone <repository-url>
-
-- **Entertainment**: Interactive fortune-telling games   cd "week05_AI Image Generator"
-
-- **Personal Assistant**: AI chat with memory capabilities   ```
-
-- **Educational**: Multiple AI personalities for different learning needs
-
-- **Conversational AI**: Advanced chatbot with context awareness2. **Install dependencies**
-
-   ```bash
-
----   pip install -r requirements.txt
-
-   ```
-
-## 🎨 Week 05: AI Image Generator
-
-   For CUDA-enabled systems:
-
-### ✨ Key Features   ```bash
-
-- **🖼️ Text-to-Image Generation**: Transform descriptions into stunning images   pip install -r cuda_torch_requirements.txt
-
-- **🎮 Multiple Interfaces**: Chinese, English, and integrated versions   ```
-
-- **🐕 Specialized Generators**: Cartoon dogs, teddy bears, and custom themes
-
-- **🎛️ Advanced Controls**: ControlNet, LCM models, and parameter tuning3. **Run the main application**
-
-- **📹 Video Processing**: Real-time filters and video enhancement   ```bash
-
-- **🌍 Multi-language Support**: Bilingual interface with full localization   streamlit run streamlit_image_generator.py
-
-   ```
+- **🎨 Enhanced UI**: Typewriter effects and modern design
 
 ### 🛠️ Technical Stack
+- **Framework**: Streamlit web application
+- **AI Backend**: LMStudio with local AI model hosting
+- **API**: OpenAI-compatible interface
+- **Features**: Session state management, custom CSS styling
 
-- **Framework**: Streamlit web applications## 📁 Project Structure
+### 🚀 Quick Start
+```bash
+cd week04-LUCKY_AI
+pip install -r requirements.txt
+streamlit run lmstudio_chatbot.py
+```
 
+### 🎯 Use Cases
+- **Entertainment**: Interactive fortune-telling games
+- **Personal Assistant**: AI chat with memory capabilities
+- **Educational**: Multiple AI personalities for different learning needs
+- **Conversational AI**: Advanced chatbot with context awareness
+
+---
+
+## 🎨 Week 05: AI Creative Studio
+
+### ✨ Key Features
+- **🖼️ AI Image Generation**: Transform text descriptions into stunning images
+- **📹 Real-time Video Processing**: Live face detection with AI-generated overlays
+- **� Combined Creative Studio**: Integrated interface for all features
+- **🐕 Specialized Generators**: Cartoon animals, teddy bears, and custom themes
+- **🎛️ Advanced Controls**: ControlNet, LCM models, and parameter tuning
+- **🌍 Multi-language Support**: Bilingual interface with full localization
+
+### 🛠️ Technical Stack
+- **Framework**: Streamlit web applications with WebRTC
 - **AI Models**: Stable Diffusion v1.5, ControlNet, LCM
+- **Libraries**: Diffusers, Transformers, OpenCV, PIL
+- **Hardware**: GPU acceleration with CUDA support
 
-- **Libraries**: Diffusers, Transformers, OpenCV, PIL```
+### 🚀 Quick Start
+```bash
+cd week05-AI_IMAGE_GENERATOR
+pip install -r requirements.txt
+streamlit run combined_creative_studio.py
+```
 
-- **Hardware**: GPU acceleration with CUDA support├── streamlit_image_generator.py    # Main Streamlit application
-
-├── integrated_ai_app.py           # Multi-feature integrated app
-
-### 🚀 Quick Start├── cartoon_dog_generator.py       # Specialized cartoon dog generator
-
-```bash├── teddy_generator.py             # Teddy bear image generator
-
-cd week05-AI_IMAGE_GENERATOR├── image_processor.py             # Image processing utilities
-
-pip install -r requirements.txt├── advanced_image_processor.py    # Advanced image effects
-
-streamlit run streamlit_image_generator.py├── st_controlnet.py              # ControlNet integration
-
-```├── st_tti_lcm.py                 # LCM (Latent Consistency Model) implementation
-
-├── st_video_stream.py            # Video streaming and filters
-
-### 🎯 Use Cases├── requirements.txt              # Basic dependencies
-
-- **Creative Content**: Generate artwork, illustrations, and designs├── cuda_torch_requirements.txt   # CUDA-optimized dependencies
-
-- **Prototyping**: Quick visual concept development└── README.md                     # This file
-
-- **Education**: Learn AI image generation techniques```
-
-- **Entertainment**: Create custom images and artwork
+### 🎯 Use Cases
+- **Creative Content**: Generate artwork, illustrations, and designs
+- **Real-time Effects**: Apply AI-generated images to live video
+- **Prototyping**: Quick visual concept development
+- **Education**: Learn AI image generation techniques
+- **Entertainment**: Create custom images and interactive video effects
 
 ## 🎮 Applications
 

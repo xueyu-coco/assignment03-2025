@@ -10,15 +10,65 @@ import io
 import base64
 import os
 import time
+import hashlib
+import random
+import threading
+import pickle
 
-# 页面配置
+# 全局变量用于视频处理（线程安全）
+current_overlay_image = None
+overlay_lock = threading.Lock()
+
+# 用文件来传递图片（确保跨线程可访问）
+OVERLAY_CACHE_FILE = "temp_overlay.pkl"
+
+def set_overlay_image(image):
+    """线程安全的设置overlay图片（使用文件缓存）"""
+    global current_overlay_image
+    try:
+        with overlay_lock:
+            current_overlay_image = image
+            # 同时保存到文件
+            if image is not None:
+                with open(OVERLAY_CACHE_FILE, 'wb') as f:
+                    pickle.dump(image, f)
+                print(f"DEBUG: Set overlay image - SUCCESS, saved to file")
+            else:
+                if os.path.exists(OVERLAY_CACHE_FILE):
+                    os.remove(OVERLAY_CACHE_FILE)
+                print(f"DEBUG: Set overlay image - NONE, removed file")
+    except Exception as e:
+        print(f"DEBUG: Set overlay error: {e}")
+
+def get_overlay_image():
+    """线程安全的获取overlay图片（优先从文件读取）"""
+    global current_overlay_image
+    try:
+        # 首先尝试从文件读取
+        if os.path.exists(OVERLAY_CACHE_FILE):
+            with open(OVERLAY_CACHE_FILE, 'rb') as f:
+                image = pickle.load(f)
+                print(f"DEBUG: Get overlay image from file - SUCCESS")
+                return image
+        
+        # 如果文件不存在，从内存读取
+        with overlay_lock:
+            result = current_overlay_image
+            print(f"DEBUG: Get overlay image from memory - {result is not None}")
+            return result
+            
+    except Exception as e:
+        print(f"DEBUG: Get overlay error: {e}")
+        return None
+
+# Page configuration
 st.set_page_config(
     page_title="AI Creative Studio",
     page_icon="🎨",
     layout="wide"
 )
 
-# 初始化session state
+# Initialize session state
 if "pipeline" not in st.session_state:
     st.session_state["pipeline"] = None
     st.session_state["pipeline_loaded"] = False
@@ -29,55 +79,57 @@ if "generated_images" not in st.session_state:
 if "selected_overlay_image" not in st.session_state:
     st.session_state["selected_overlay_image"] = None
 
-# 主标题
+# Main title
 st.title("🎨 AI Creative Studio")
-st.markdown("### 集成图片生成与视频合成的创意工具")
+st.markdown("### Integrated Image Generation and Video Composition Creative Tool")
 
-# 侧边栏配置
+# Sidebar configuration
 with st.sidebar:
-    st.header("⚙️ 功能选择")
+    st.header("⚙️ Feature Selection")
     
-    # 功能选择
+    # Feature mode selection
     feature_mode = st.selectbox(
-        "选择功能模式",
-        ["🎨 图片生成", "📹 视频滤镜", "🔄 图片+视频合成"]
+        "Select Feature Mode",
+        ["🎨 Image Generation", "📹 Video Filter", "🔄 Image+Video Composition"]
     )
     
     st.markdown("---")
     
-    # GPU状态
-    st.subheader("💻 系统状态")
+    # GPU status
+    st.subheader("💻 System Status")
     if torch.cuda.is_available():
         st.success(f"GPU: {torch.cuda.get_device_name(0)}")
-        st.info(f"CUDA版本: {torch.version.cuda}")
+        st.info(f"CUDA Version: {torch.version.cuda}")
     else:
-        st.warning("使用CPU模式")
+        st.warning("Using CPU Mode")
     
     st.markdown("---")
     
-    # 生成的图片库
-    st.subheader("🖼️ 图片库")
+    # Generated image gallery
+    st.subheader("🖼️ Image Gallery")
     if st.session_state["generated_images"]:
-        st.write(f"已生成 {len(st.session_state['generated_images'])} 张图片")
+        st.write(f"Generated {len(st.session_state['generated_images'])} images")
         
-        # 显示最近的3张图片缩略图
+        # Display recent 3 image thumbnails
         for i, img in enumerate(st.session_state["generated_images"][-3:]):
             with st.container():
-                st.image(img, caption=f"图片 {len(st.session_state['generated_images'])-2+i}", width=150)
-                if st.button(f"用作视频滤镜", key=f"use_img_{i}"):
+                st.image(img, caption=f"Image {len(st.session_state['generated_images'])-2+i}", width=150)
+                if st.button(f"Use as Video Filter", key=f"use_img_{i}"):
                     st.session_state["selected_overlay_image"] = img
-                    st.success("已选择为视频滤镜图片")
+                    # Update global variable for video processing
+                    set_overlay_image(img)
+                    st.success("Selected as video filter image")
         
-        if st.button("🗑️ 清空图片库"):
+        if st.button("🗑️ Clear Image Gallery"):
             st.session_state["generated_images"] = []
             st.rerun()
     else:
-        st.info("暂无生成的图片")
+        st.info("No generated images yet")
 
 # 加载AI模型的函数
 @st.cache_resource
 def load_image_pipeline():
-    """加载图片生成模型"""
+    """Load image generation model"""
     try:
         model = 'lykon/dreamshaper-8-lcm'
         pipe = AutoPipelineForText2Image.from_pretrained(
@@ -91,42 +143,222 @@ def load_image_pipeline():
         st.error(f"模型加载失败: {e}")
         return None
 
-# 创建默认覆盖图像
-def create_default_overlay(size=(100, 100)):
-    """创建默认的覆盖图像"""
+# Create cartoon animal overlay image
+def create_cartoon_animal(animal_type, size=(100, 100)):
+    """Create cartoon animal image based on animal type"""
     img = Image.new('RGBA', size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    # 绘制一个简单的笑脸
     center = (size[0]//2, size[1]//2)
     radius = min(size) // 3
     
-    # 脸部 (黄色圆圈)
-    draw.ellipse([
-        center[0] - radius, center[1] - radius,
-        center[0] + radius, center[1] + radius
-    ], fill=(255, 255, 0, 200))
+    if animal_type == "cat":
+        # 猫咪
+        # 头部 (橙色)
+        draw.ellipse([
+            center[0] - radius, center[1] - radius,
+            center[0] + radius, center[1] + radius
+        ], fill=(255, 140, 0, 220))
+        
+        # 猫耳朵 (三角形)
+        ear_size = radius // 2
+        # 左耳
+        draw.polygon([
+            center[0] - radius//2, center[1] - radius,
+            center[0] - radius, center[1] - radius - ear_size,
+            center[0], center[1] - radius - ear_size
+        ], fill=(255, 140, 0, 220))
+        # 右耳
+        draw.polygon([
+            center[0] + radius//2, center[1] - radius,
+            center[0] + radius, center[1] - radius - ear_size,
+            center[0], center[1] - radius - ear_size
+        ], fill=(255, 140, 0, 220))
+        
+        # 眼睛 (绿色)
+        eye_size = radius // 4
+        draw.ellipse([
+            center[0] - radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] - radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 255, 0, 255))
+        draw.ellipse([
+            center[0] + radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] + radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 255, 0, 255))
+        
+        # 鼻子 (小三角形)
+        nose_size = radius // 6
+        draw.polygon([
+            center[0], center[1] - nose_size//2,
+            center[0] - nose_size//2, center[1] + nose_size//2,
+            center[0] + nose_size//2, center[1] + nose_size//2
+        ], fill=(255, 192, 203, 255))
+        
+    elif animal_type == "dog":
+        # 狗狗
+        # 头部 (棕色)
+        draw.ellipse([
+            center[0] - radius, center[1] - radius,
+            center[0] + radius, center[1] + radius
+        ], fill=(139, 90, 43, 220))
+        
+        # 狗耳朵 (椭圆形下垂)
+        ear_width = radius // 2
+        ear_height = radius // 1.5
+        # 左耳
+        draw.ellipse([
+            center[0] - radius - ear_width//2, center[1] - radius//2 - ear_height//2,
+            center[0] - radius + ear_width//2, center[1] - radius//2 + ear_height//2
+        ], fill=(101, 67, 33, 220))
+        # 右耳
+        draw.ellipse([
+            center[0] + radius - ear_width//2, center[1] - radius//2 - ear_height//2,
+            center[0] + radius + ear_width//2, center[1] - radius//2 + ear_height//2
+        ], fill=(101, 67, 33, 220))
+        
+        # 眼睛 (黑色)
+        eye_size = radius // 4
+        draw.ellipse([
+            center[0] - radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] - radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 0, 0, 255))
+        draw.ellipse([
+            center[0] + radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] + radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 0, 0, 255))
+        
+        # 鼻子 (黑色圆)
+        nose_size = radius // 6
+        draw.ellipse([
+            center[0] - nose_size//2, center[1] - nose_size//2,
+            center[0] + nose_size//2, center[1] + nose_size//2
+        ], fill=(0, 0, 0, 255))
+        
+        # 嘴巴
+        mouth_width = radius // 2
+        draw.arc([
+            center[0] - mouth_width//2, center[1] + nose_size,
+            center[0] + mouth_width//2, center[1] + radius//2
+        ], start=0, end=180, fill=(0, 0, 0, 255), width=2)
+        
+    elif animal_type == "rabbit":
+        # 兔子
+        # 头部 (白色)
+        draw.ellipse([
+            center[0] - radius, center[1] - radius,
+            center[0] + radius, center[1] + radius
+        ], fill=(255, 255, 255, 220))
+        
+        # 兔耳朵 (长椭圆形)
+        ear_width = radius // 3
+        ear_height = radius
+        # 左耳
+        draw.ellipse([
+            center[0] - radius//2 - ear_width//2, center[1] - radius - ear_height,
+            center[0] - radius//2 + ear_width//2, center[1] - radius
+        ], fill=(255, 192, 203, 220))
+        # 右耳
+        draw.ellipse([
+            center[0] + radius//2 - ear_width//2, center[1] - radius - ear_height,
+            center[0] + radius//2 + ear_width//2, center[1] - radius
+        ], fill=(255, 192, 203, 220))
+        
+        # 眼睛 (红色)
+        eye_size = radius // 4
+        draw.ellipse([
+            center[0] - radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] - radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(255, 0, 0, 255))
+        draw.ellipse([
+            center[0] + radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] + radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(255, 0, 0, 255))
+        
+        # 鼻子 (粉色小圆)
+        nose_size = radius // 8
+        draw.ellipse([
+            center[0] - nose_size//2, center[1] - nose_size//2,
+            center[0] + nose_size//2, center[1] + nose_size//2
+        ], fill=(255, 192, 203, 255))
+        
+    elif animal_type == "sheep":
+        # 羊羊
+        # 头部 (白色，带卷毛效果)
+        draw.ellipse([
+            center[0] - radius, center[1] - radius,
+            center[0] + radius, center[1] + radius
+        ], fill=(255, 255, 255, 220))
+        
+        # 卷毛效果（小圆圈）
+        wool_size = radius // 6
+        for i in range(8):
+            angle = i * 45  # 每45度一个卷毛
+            x = center[0] + int((radius - wool_size) * np.cos(np.radians(angle)))
+            y = center[1] + int((radius - wool_size) * np.sin(np.radians(angle)))
+            draw.ellipse([
+                x - wool_size//2, y - wool_size//2,
+                x + wool_size//2, y + wool_size//2
+            ], fill=(240, 240, 240, 200))
+        
+        # 眼睛 (黑色)
+        eye_size = radius // 4
+        draw.ellipse([
+            center[0] - radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] - radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 0, 0, 255))
+        draw.ellipse([
+            center[0] + radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] + radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 0, 0, 255))
+        
+        # 鼻子 (黑色小圆)
+        nose_size = radius // 8
+        draw.ellipse([
+            center[0] - nose_size//2, center[1] - nose_size//2,
+            center[0] + nose_size//2, center[1] + nose_size//2
+        ], fill=(0, 0, 0, 255))
     
-    # 眼睛
-    eye_size = radius // 4
-    draw.ellipse([
-        center[0] - radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
-        center[0] - radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
-    ], fill=(0, 0, 0, 255))
-    
-    draw.ellipse([
-        center[0] + radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
-        center[0] + radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
-    ], fill=(0, 0, 0, 255))
-    
-    # 嘴巴
-    mouth_width = radius
-    draw.arc([
-        center[0] - mouth_width//2, center[1],
-        center[0] + mouth_width//2, center[1] + radius//2
-    ], start=0, end=180, fill=(0, 0, 0, 255), width=3)
+    else:
+        # 默认笑脸
+        draw.ellipse([
+            center[0] - radius, center[1] - radius,
+            center[0] + radius, center[1] + radius
+        ], fill=(255, 255, 0, 200))
+        
+        eye_size = radius // 4
+        draw.ellipse([
+            center[0] - radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] - radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 0, 0, 255))
+        draw.ellipse([
+            center[0] + radius//2 - eye_size//2, center[1] - radius//3 - eye_size//2,
+            center[0] + radius//2 + eye_size//2, center[1] - radius//3 + eye_size//2
+        ], fill=(0, 0, 0, 255))
+        
+        mouth_width = radius
+        draw.arc([
+            center[0] - mouth_width//2, center[1],
+            center[0] + mouth_width//2, center[1] + radius//2
+        ], start=0, end=180, fill=(0, 0, 0, 255), width=3)
     
     return img
+
+# Generate animal type based on face position
+def get_animal_for_face(face_x, face_y, face_w, face_h):
+    """Generate fixed animal type based on face position features"""
+    # 使用人脸位置的哈希值来确保同一个位置总是生成相同的动物
+    face_id = f"{face_x//20}_{face_y//20}_{face_w//10}_{face_h//10}"
+    face_hash = hashlib.md5(face_id.encode()).hexdigest()
+    
+    # 将哈希值转换为数字并选择动物
+    hash_num = int(face_hash[:8], 16)
+    animals = ["cat", "dog", "rabbit", "sheep"]
+    return animals[hash_num % len(animals)]
+
+# 创建默认覆盖图像（保留原有函数作为备用）
+def create_default_overlay(size=(100, 100)):
+    """创建默认的覆盖图像"""
+    return create_cartoon_animal("default", size)
 
 # 图像覆盖函数
 def overlay_image_on_frame(frame_img, overlay_img, x, y, scale=1.0):
@@ -179,16 +411,9 @@ def overlay_image_on_frame(frame_img, overlay_img, x, y, scale=1.0):
     
     return frame_img
 
-# 视频帧处理回调
+# Video frame processing callback
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
-    
-    # 获取覆盖图像
-    overlay_img = st.session_state.get("selected_overlay_image")
-    
-    if overlay_img is None:
-        # 使用默认图像
-        overlay_img = create_default_overlay((80, 80))
     
     try:
         # 人脸检测
@@ -196,86 +421,260 @@ def video_frame_callback(frame):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.1, 4)
         
-        # 在每个检测到的人脸位置添加覆盖图像
+        # 转换为PIL图像进行处理
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(img_rgb)
+        
+        # 在每个人脸上添加对应的卡通动物覆盖层
         for (x, y, w, h) in faces:
-            center_x = x + w // 2
-            center_y = y + h // 2
-            scale = w / 100.0
+            # 根据人脸位置获取对应的动物类型
+            animal_type = get_animal_for_face(x, y, w, h)
             
-            img = overlay_image_on_frame(img, overlay_img, center_x, center_y, scale)
+            # 创建对应动物的覆盖图像
+            overlay_size = (max(w, 80), max(h, 80))
+            overlay = create_cartoon_animal(animal_type, overlay_size)
+            
+            # 计算覆盖位置
+            overlay_x = max(0, x + w//2 - overlay_size[0]//2)
+            overlay_y = max(0, y + h//2 - overlay_size[1]//2)
+            
+            # 确保覆盖层不超出图像边界
+            if overlay_x + overlay_size[0] > pil_img.width:
+                overlay_x = pil_img.width - overlay_size[0]
+            if overlay_y + overlay_size[1] > pil_img.height:
+                overlay_y = pil_img.height - overlay_size[1]
+            
+            # 粘贴覆盖层
+            pil_img.paste(overlay, (overlay_x, overlay_y), overlay)
+        
+        # 转换回OpenCV格式
+        img_array = np.array(pil_img)
+        img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
     
     except Exception as e:
-        # 如果人脸检测失败，在屏幕中央添加图像
+        # 如果人脸检测失败，在屏幕中央添加默认动物图像
         center_x = img.shape[1] // 2
         center_y = img.shape[0] // 2
-        img = overlay_image_on_frame(img, overlay_img, center_x, center_y, 1.0)
+        
+        # 创建默认动物覆盖
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(img_rgb)
+        overlay = create_cartoon_animal("cat", (100, 100))
+        
+        overlay_x = max(0, center_x - 50)
+        overlay_y = max(0, center_y - 50)
+        pil_img.paste(overlay, (overlay_x, overlay_y), overlay)
+        
+        img_array = np.array(pil_img)
+        img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+    
+    return av.VideoFrame.from_ndarray(img, format="bgr24")
+
+# Image+Video composition mode dynamic video processing callback
+def combined_video_frame_callback(frame):
+    img = frame.to_ndarray(format="bgr24")
+    
+    try:
+        # 获取当前时间用于动态效果
+        current_time = time.time()
+        
+        # 转换为PIL图像进行处理  
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(img_rgb)
+        
+        # 获取滤镜图片（使用线程安全方法）
+        overlay_img = get_overlay_image()
+        
+        # 调试信息：在画面上显示状态
+        cv2.putText(img, f"Overlay status: {'Found' if overlay_img else 'None'}", 
+                   (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        
+        # 只有当用户真正生成了AI图片时才进行处理
+        if overlay_img is not None:
+            cv2.putText(img, "AI Filter Active", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            
+            # 人脸检测
+            face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+            
+            cv2.putText(img, f"Faces detected: {len(faces)}", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            
+            if len(faces) > 0:
+                # 在每个人脸上添加动态效果的生成图片
+                for (x, y, w, h) in faces:
+                    # 绘制人脸检测框（调试用）
+                    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                    
+                    # 创建动态效果
+                    face_center_x = x + w // 2
+                    face_center_y = y + h // 2
+                    
+                    # 动态缩放效果（呼吸效果）
+                    scale_factor = 0.7 + 0.3 * abs(np.sin(current_time * 2))  # 0.7-1.0之间变化
+                    
+                    # 动态位置偏移（轻微摆动）
+                    offset_x = int(8 * np.sin(current_time * 3))
+                    offset_y = int(4 * np.cos(current_time * 4))
+                    
+                    # 计算动态尺寸（让图片稍微大于人脸框）
+                    face_scale = 1.3  # 图片比人脸大30%
+                    base_size = max(w, h) * face_scale
+                    dynamic_size = (int(base_size * scale_factor), int(base_size * scale_factor))
+                    
+                    try:
+                        # 转换为PIL进行图片处理
+                        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                        pil_img = Image.fromarray(img_rgb)
+                        
+                        # 调整生成图片大小
+                        resized_overlay = overlay_img.resize(dynamic_size, Image.Resampling.LANCZOS)
+                        
+                        # 添加轻微旋转效果
+                        rotation_angle = 2 * np.sin(current_time * 1.5)  # -2到2度摆动（减少旋转幅度）
+                        if abs(rotation_angle) > 0.3:  # 避免过小的旋转
+                            # 创建带alpha通道的图像用于旋转
+                            if resized_overlay.mode != 'RGBA':
+                                resized_overlay = resized_overlay.convert('RGBA')
+                            resized_overlay = resized_overlay.rotate(rotation_angle, expand=True)
+                        
+                        # 计算粘贴位置（稍微向上偏移，更好地覆盖人脸）
+                        paste_x = max(0, face_center_x - resized_overlay.width // 2 + offset_x)
+                        paste_y = max(0, face_center_y - resized_overlay.height // 2 - int(h * 0.1) + offset_y)  # 向上偏移10%人脸高度
+                        
+                        # 确保不超出边界
+                        if paste_x + resized_overlay.width > pil_img.width:
+                            paste_x = pil_img.width - resized_overlay.width
+                        if paste_y + resized_overlay.height > pil_img.height:
+                            paste_y = pil_img.height - resized_overlay.height
+                        
+                        # 确保有alpha通道
+                        if resized_overlay.mode != 'RGBA':
+                            resized_overlay = resized_overlay.convert('RGBA')
+                        
+                        # 粘贴到视频帧上
+                        pil_img.paste(resized_overlay, (paste_x, paste_y), resized_overlay)
+                        
+                        # 转换回OpenCV格式
+                        img_array = np.array(pil_img)
+                        img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+                        
+                    except Exception as e:
+                        cv2.putText(img, f"Paste Error: {str(e)[:30]}", (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+            
+            else:
+                # 没有检测到人脸时，在屏幕中央显示动态效果
+                center_x = img.shape[1] // 2
+                center_y = img.shape[0] // 2
+                
+                try:
+                    # 转换为PIL进行处理
+                    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    pil_img = Image.fromarray(img_rgb)
+                    
+                    # 动态效果
+                    scale_factor = 0.6 + 0.4 * abs(np.sin(current_time * 1.5))
+                    rotation_angle = 8 * np.sin(current_time * 1)
+                    
+                    # 调整图片
+                    dynamic_size = (int(120 * scale_factor), int(120 * scale_factor))
+                    resized_overlay = overlay_img.resize(dynamic_size, Image.Resampling.LANCZOS)
+                    
+                    if abs(rotation_angle) > 0.5:
+                        if resized_overlay.mode != 'RGBA':
+                            resized_overlay = resized_overlay.convert('RGBA')
+                        resized_overlay = resized_overlay.rotate(rotation_angle, expand=True)
+                    
+                    # 位置
+                    paste_x = max(0, center_x - resized_overlay.width // 2)
+                    paste_y = max(0, center_y - resized_overlay.height // 2)
+                    
+                    # 粘贴
+                    if resized_overlay.mode != 'RGBA':
+                        resized_overlay = resized_overlay.convert('RGBA')
+                    pil_img.paste(resized_overlay, (paste_x, paste_y), resized_overlay)
+                    
+                    # 转换回OpenCV格式
+                    img_array = np.array(pil_img)
+                    img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+                    
+                except Exception as e:
+                    cv2.putText(img, f"Center Error: {str(e)[:30]}", (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        
+        else:
+            # 没有滤镜图片时，显示提示信息
+            cv2.putText(img, "Please generate AI filter first", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+    
+    except Exception as e:
+        # 错误处理：在图片上显示简单的错误信息
+        cv2.putText(img, f"Error: {str(e)[:30]}", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
     
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 # 主要内容区域
-if feature_mode == "🎨 图片生成":
-    # 图片生成模式
-    st.header("🎨 AI图片生成")
+if feature_mode == "🎨 Image Generation":
+    # Image generation mode
+    st.header("🎨 AI Image Generation")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.subheader("📝 输入描述")
+        st.subheader("📝 Input Description")
         
-        # 预设提示词
+        # Preset prompts
         preset_prompts = {
-            "选择预设...": "",
-            "可爱动物": "cute fluffy puppy playing in garden, soft lighting, adorable",
-            "美丽风景": "beautiful landscape with mountains, lakes, golden hour lighting",
-            "科幻场景": "futuristic cityscape with flying cars, neon lights, cyberpunk style",
-            "艺术肖像": "portrait of wise wizard, detailed face, magical atmosphere, fantasy art",
-            "卡通风格": "cartoon style illustration, colorful, friendly, animated character"
+            "Select preset...": "",
+            "Cute Animals": "cute fluffy puppy playing in garden, soft lighting, adorable",
+            "Beautiful Landscapes": "beautiful landscape with mountains, lakes, golden hour lighting",
+            "Sci-fi Scenes": "futuristic cityscape with flying cars, neon lights, cyberpunk style",
+            "Art Portraits": "portrait of wise wizard, detailed face, magical atmosphere, fantasy art",
+            "Cartoon Style": "cartoon style illustration, colorful, friendly, animated character"
         }
         
-        selected_preset = st.selectbox("预设提示词", list(preset_prompts.keys()))
+        selected_preset = st.selectbox("Preset Prompts", list(preset_prompts.keys()))
         
-        # 主要提示词输入
-        if selected_preset != "选择预设...":
+        # Main prompt input
+        if selected_preset != "Select preset...":
             default_prompt = preset_prompts[selected_preset]
         else:
             default_prompt = ""
         
         prompt = st.text_area(
-            "图片描述 (Prompt)",
+            "Image Description (Prompt)",
             value=default_prompt,
             height=100,
-            help="详细描述你想要生成的图片"
+            help="Describe in detail the image you want to generate"
         )
         
-        # 生成参数
+        # Generation parameters
         col_param1, col_param2 = st.columns(2)
         with col_param1:
-            num_steps = st.slider("推理步数", 4, 20, 8)
+            num_steps = st.slider("Inference Steps", 4, 20, 8)
         with col_param2:
-            guidance_scale = st.slider("引导强度", 1.0, 5.0, 2.0, 0.5)
+            guidance_scale = st.slider("Guidance Scale", 1.0, 5.0, 2.0, 0.5)
         
-        # 生成按钮
-        generate_btn = st.button("🎨 生成图片", type="primary", use_container_width=True)
+        # Generate button
+        generate_btn = st.button("🎨 Generate Image", type="primary", width="stretch")
     
     with col2:
-        st.subheader("🖼️ 生成结果")
+        st.subheader("🖼️ Generation Results")
         
         if generate_btn and prompt.strip():
-            # 加载模型
+            # Load model
             if not st.session_state["pipeline_loaded"]:
-                with st.spinner("正在加载AI模型..."):
+                with st.spinner("Loading AI model..."):
                     pipeline = load_image_pipeline()
                     if pipeline:
                         st.session_state["pipeline"] = pipeline
                         st.session_state["pipeline_loaded"] = True
-                        st.success("模型加载成功！")
+                        st.success("Model loaded successfully!")
                     else:
-                        st.error("模型加载失败")
+                        st.error("Model loading failed")
                         st.stop()
             
-            # 生成图片
+            # Generate image
             if st.session_state["pipeline"]:
-                with st.spinner("正在生成图片..."):
+                with st.spinner("Generating image..."):
                     try:
                         start_time = time.time()
                         
@@ -288,31 +687,31 @@ if feature_mode == "🎨 图片生成":
                         
                         generation_time = time.time() - start_time
                         
-                        # 保存到session state
+                        # Save to session state
                         for image in images:
                             st.session_state["generated_images"].append(image)
                         
-                        # 显示生成的图片
+                        # Display generated images
                         for image in images:
-                            st.image(image, caption=prompt, use_container_width=True)
+                            st.image(image, caption=prompt, use_column_width=True)
                         
-                        st.success(f"✅ 生成完成！用时: {generation_time:.2f}秒")
+                        st.success(f"✅ Generation completed! Time: {generation_time:.2f}s")
                         
-                        # 添加下载按钮
+                        # Add download button
                         img_buffer = io.BytesIO()
                         images[0].save(img_buffer, format='PNG')
                         img_data = img_buffer.getvalue()
                         
                         st.download_button(
-                            label="📥 下载图片",
+                            label="📥 Download Image",
                             data=img_data,
                             file_name=f"ai_generated_{int(time.time())}.png",
                             mime="image/png",
-                            use_container_width=True
+                            width="stretch"
                         )
                         
                     except Exception as e:
-                        st.error(f"生成失败: {e}")
+                        st.error(f"Generation failed: {e}")
         
         elif generate_btn and not prompt.strip():
             st.warning("请输入图片描述")
@@ -323,9 +722,9 @@ if feature_mode == "🎨 图片生成":
             latest_image = st.session_state["generated_images"][-1]
             st.image(latest_image, use_container_width=True)
 
-elif feature_mode == "📹 视频滤镜":
-    # 视频滤镜模式
-    st.header("📹 实时视频滤镜")
+elif feature_mode == "📹 Video Filter":
+    # Video filter mode
+    st.header("📹 Real-time Video Filter")
     
     col1, col2 = st.columns([2, 1])
     
@@ -366,40 +765,45 @@ elif feature_mode == "📹 视频滤镜":
         5. 从图片库选择自定义滤镜图片
         """)
 
-else:  # 图片+视频合成模式
-    # 合成模式
-    st.header("🔄 图片生成 + 视频滤镜合成")
+else:  # Image+Video composition mode
+    # Composition mode
+    st.header("🔄 Image Generation + Video Filter Composition")
     
-    # 上半部分：图片生成
-    st.subheader("🎨 第一步：生成滤镜图片")
+    # Upper part: Image generation
+    st.subheader("🎨 Step 1: Generate Filter Images")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        # 快速生成预设
+        # Quick generation presets
         quick_prompts = {
-            "🐶 卡通狗狗": "cute cartoon dog head, friendly smile, colorful, simple design",
-            "🐱 可爱猫咪": "adorable cartoon cat face, big eyes, cute expression, pastel colors",
-            "🦄 独角兽": "magical unicorn head, rainbow mane, sparkles, fantasy style",
-            "🐻 泰迪熊": "teddy bear face, brown fur, cute button nose, friendly expression",
-            "👑 皇冠": "golden crown, jewels, royal, elegant design",
-            "🎭 面具": "venetian carnival mask, decorative, colorful patterns"
+            "🐶 Cartoon Dog": "cute cartoon dog head, friendly smile, colorful, simple design",
+            "🐱 Cute Cat": "adorable cartoon cat face, big eyes, cute expression, pastel colors",
+            "🦄 Unicorn": "magical unicorn head, rainbow mane, sparkles, fantasy style",
+            "🐻 Teddy Bear": "teddy bear face, brown fur, cute button nose, friendly expression",
+            "👑 Crown": "golden crown, jewels, royal, elegant design",
+            "🎭 Mask": "venetian carnival mask, decorative, colorful patterns",
+            "🌸 Flower Decoration": "beautiful flower crown, cherry blossoms, soft colors, transparent background",
+            "⭐ Star Halo": "glowing star halo, magical sparkles, golden light, celestial design",
+            "🎀 Bow Tie": "cute bow tie, pastel ribbons, kawaii style, soft colors",
+            "🎪 Jester Hat": "colorful jester hat, bells, fun carnival style, bright colors"
         }
         
-        st.write("快速生成滤镜图片:")
+        st.write("Quick Generate Face Filter Images:")
+        st.caption("💡 These images will be automatically applied to detected faces")
         
         for prompt_name, prompt_text in quick_prompts.items():
-            if st.button(prompt_name, use_container_width=True):
-                # 加载模型并生成
+            if st.button(prompt_name, width="stretch"):
+                # Load model and generate
                 if not st.session_state["pipeline_loaded"]:
-                    with st.spinner("正在加载AI模型..."):
+                    with st.spinner("Loading AI model..."):
                         pipeline = load_image_pipeline()
                         if pipeline:
                             st.session_state["pipeline"] = pipeline
                             st.session_state["pipeline_loaded"] = True
                 
                 if st.session_state["pipeline"]:
-                    with st.spinner(f"正在生成{prompt_name}..."):
+                    with st.spinner(f"Generating {prompt_name}..."):
                         try:
                             images = st.session_state["pipeline"](
                                 prompt_text,
@@ -408,33 +812,36 @@ else:  # 图片+视频合成模式
                                 num_images_per_prompt=1
                             ).images
                             
-                            # 保存并选择为滤镜
+                            # Save and select as filter
                             for image in images:
                                 st.session_state["generated_images"].append(image)
                                 st.session_state["selected_overlay_image"] = image
+                                # Update global variable for video processing
+                                set_overlay_image(image)
                             
-                            st.success(f"✅ {prompt_name} 生成完成并已设为滤镜！")
+                            st.success(f"✅ {prompt_name} generated and set as filter!")
                             st.rerun()
                             
                         except Exception as e:
-                            st.error(f"生成失败: {e}")
+                            st.error(f"Generation failed: {e}")
     
     with col2:
-        # 自定义提示词
-        st.write("或输入自定义描述:")
-        custom_prompt = st.text_input("图片描述", placeholder="例如: 可爱的小动物头像")
+        # Custom prompts
+        st.write("Or enter custom description:")
+        st.caption("💡 Recommended keywords: transparent background, face decoration, head accessory")
+        custom_prompt = st.text_input("Image Description", placeholder="e.g.: golden halo glowing light transparent background")
         
-        if st.button("🎨 生成自定义滤镜") and custom_prompt.strip():
-            # 同样的生成逻辑
+        if st.button("🎨 Generate Custom Filter") and custom_prompt.strip():
+            # Same generation logic
             if not st.session_state["pipeline_loaded"]:
-                with st.spinner("正在加载AI模型..."):
+                with st.spinner("Loading AI model..."):
                     pipeline = load_image_pipeline()
                     if pipeline:
                         st.session_state["pipeline"] = pipeline
                         st.session_state["pipeline_loaded"] = True
             
             if st.session_state["pipeline"]:
-                with st.spinner("正在生成图片..."):
+                with st.spinner("Generating image..."):
                     try:
                         images = st.session_state["pipeline"](
                             custom_prompt,
@@ -446,45 +853,64 @@ else:  # 图片+视频合成模式
                         for image in images:
                             st.session_state["generated_images"].append(image)
                             st.session_state["selected_overlay_image"] = image
+                            # Update global variable for video processing
+                            set_overlay_image(image)
                         
-                        st.success("✅ 自定义滤镜生成完成！")
+                        st.success("✅ Custom filter generated successfully!")
                         st.rerun()
                         
                     except Exception as e:
-                        st.error(f"生成失败: {e}")
+                        st.error(f"Generation failed: {e}")
     
     st.markdown("---")
     
-    # 下半部分：视频滤镜
-    st.subheader("📹 第二步：应用视频滤镜")
+    # Lower part: Video filter
+    st.subheader("📹 Step 2: Apply Video Filter")
     
     col3, col4 = st.columns([2, 1])
     
     with col3:
-        # 视频流
+        # Video stream (using specialized dynamic effects callback)
         webrtc_streamer(
             key="combined_filter",
-            video_frame_callback=video_frame_callback,
+            video_frame_callback=combined_video_frame_callback,
             rtc_configuration={
                 "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
             }
         )
     
     with col4:
-        st.write("当前滤镜:")
+        st.write("Current Filter:")
         if st.session_state["selected_overlay_image"]:
             st.image(st.session_state["selected_overlay_image"], width=150)
             st.success("✅ 使用AI生成的滤镜图片")
+            
+            # 动态效果说明
+            st.info("""
+            🌟 **AI图片人脸应用已启用！**
+            - 🎯 AI图片智能贴合人脸
+            - 🔄 动态呼吸缩放效果
+            - 🎪 轻微摆动旋转
+            - 👤 自动人脸追踪覆盖
+            - � 智能尺寸调整（比人脸大30%）
+            """)
         else:
             default_img = create_default_overlay((100, 100))
             st.image(default_img, width=150)
-            st.info("使用默认滤镜")
+            st.info("Please generate filter image first")
+            
+        # Regenerate button
+        if st.button("🔄 Reselect Filter", width="stretch"):
+            st.session_state["selected_overlay_image"] = None
+            # Reset global variable
+            set_overlay_image(None)
+            st.rerun()
 
-# 页脚
+# Footer
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
-<p>🎨 AI Creative Studio | 图片生成 + 视频滤镜合成工具</p>
-<p>使用 Stable Diffusion + OpenCV + WebRTC 技术</p>
+<p>🎨 AI Creative Studio | Image Generation + Video Filter Composition Tool</p>
+<p>Powered by Stable Diffusion + OpenCV + WebRTC Technology</p>
 </div>
 """, unsafe_allow_html=True)
