@@ -1,0 +1,9 @@
+librosa==0.10.1
+numpy
+pygame
+matplotlib
+scipy
+torch
+torchvision
+opencv-python
+mediapipe

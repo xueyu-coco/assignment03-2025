@@ -1,0 +1,31 @@
+# Voice Recognition Dependencies
+# All packages for voice command functionality
+
+# Core speech recognition library
+SpeechRecognition==3.10.0
+
+# Audio input/output handling
+PyAudio==0.2.11
+
+# Optional: Offline speech recognition (CMU Sphinx)
+pocketsphinx==0.1.15
+
+# Additional audio processing libraries (optional)
+# speechrecognition[whisper-api]  # For OpenAI Whisper API support
+# vosk==0.3.45                   # Alternative offline recognition
+# azure-cognitiveservices-speech # For Azure Speech Services
+
+# Dependencies for enhanced audio processing
+numpy>=1.21.0
+scipy>=1.7.0
+
+# Threading and queue support (built-in modules)
+# threading - built-in
+# queue - built-in
+
+# Notes for installation:
+# - PyAudio may require additional system dependencies on some platforms
+# - On Windows: Should work directly with pip
+# - On macOS: May need portaudio (brew install portaudio)
+# - On Linux: May need python3-pyaudio or build tools
+# - For best results, use a virtual environment
