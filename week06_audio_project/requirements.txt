@@ -1,8 +1,0 @@
-pyaudio
-numpy
-pillow
-matplotlib
-diffusers
-torch
-transformers
-openai-whisper
