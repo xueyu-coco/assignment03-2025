@@ -18,13 +18,11 @@ An interactive voice-controlled fireworks display that responds to your voice in
 - **Animated Background**: Twinkling stars in a night sky
 
 ### 🔊 Dynamic Sound Effects
-- **Launch Sounds**: Whoosh sounds when rockets launch
-- **Size-Based Explosion Audio**: Louder voice = Deeper, more powerful explosion sounds
-- **Realistic Audio Physics**: 
-  - Small fireworks: Higher pitch, quick sparkle sounds
-  - Medium fireworks: Balanced rumble and crackle effects
-  - Large fireworks: Deep bass rumble with extended sparkle effects
-- **Real-time Audio Generation**: Sounds generated dynamically based on firework properties
+- **Size-Based Audio**: Different sound effects for different firework sizes
+- **Realistic Explosion Sounds**: Procedurally generated explosion audio with harmonics and noise
+- **Volume Scaling**: Louder fireworks produce louder, deeper explosion sounds
+- **Crackle Effects**: Large fireworks include authentic crackling sounds
+- **Multi-layered Audio**: Base explosion + harmonics + noise + crackle for realism
 
 ### 🎨 Interactive Interface
 - **Real-time Volume Indicator**: Visual bar showing current voice volume
@@ -92,6 +90,15 @@ python voice_fireworks.py
 - **Chunk Size**: 1024 samples
 - **Volume Analysis**: RMS (Root Mean Square) calculation
 - **Threshold Detection**: Automatic noise floor adjustment
+
+### Sound Effects System
+- **Audio Generation**: Real-time procedural sound synthesis
+- **Sound Sample Rate**: 22.05 kHz for effects
+- **Dynamic Frequency**: 60-250 Hz based on firework size
+- **Harmonic Layers**: Base tone + 2nd/3rd harmonics for richness
+- **Noise Component**: Realistic explosion texture
+- **Envelope Shaping**: Exponential decay with size-based duration
+- **Crackle Effects**: High-frequency sparkle sounds for large fireworks
 
 ### Firework Physics
 - **Launch Speed**: 8-12 pixels/frame (based on size)
