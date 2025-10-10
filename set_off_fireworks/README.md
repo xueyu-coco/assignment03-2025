@@ -18,11 +18,14 @@ An interactive voice-controlled fireworks display that responds to your voice in
 - **Animated Background**: Twinkling stars in a night sky
 
 ### 🔊 Dynamic Sound Effects
+- **Dual Audio System**: Launch sounds + explosion sounds for complete audio experience
+- **Launch Audio**: Realistic whoosh/rocket launch sounds with frequency sweeps
 - **Size-Based Audio**: Different sound effects for different firework sizes
 - **Realistic Explosion Sounds**: Procedurally generated explosion audio with harmonics and noise
-- **Volume Scaling**: Louder fireworks produce louder, deeper explosion sounds
+- **Volume Scaling**: Louder fireworks produce louder, deeper sounds
 - **Crackle Effects**: Large fireworks include authentic crackling sounds
-- **Multi-layered Audio**: Base explosion + harmonics + noise + crackle for realism
+- **Multi-layered Audio**: Base sounds + harmonics + noise + crackle for realism
+- **Enhanced Sensitivity**: More responsive voice detection for easier triggering
 
 ### 🎨 Interactive Interface
 - **Real-time Volume Indicator**: Visual bar showing current voice volume
@@ -89,12 +92,16 @@ python voice_fireworks.py
 - **Sample Rate**: 44.1 kHz
 - **Chunk Size**: 1024 samples
 - **Volume Analysis**: RMS (Root Mean Square) calculation
+- **Enhanced Sensitivity**: Lower threshold (0.005) for easier voice triggering
 - **Threshold Detection**: Automatic noise floor adjustment
 
 ### Sound Effects System
+- **Dual Audio Engine**: Launch sounds + explosion sounds
+- **Launch Audio**: Frequency sweep whoosh (40-180 Hz) with pink noise
+- **Launch Duration**: 0.8-1.2 seconds based on firework size
 - **Audio Generation**: Real-time procedural sound synthesis
 - **Sound Sample Rate**: 22.05 kHz for effects
-- **Dynamic Frequency**: 60-250 Hz based on firework size
+- **Explosion Frequency**: 60-250 Hz based on firework size
 - **Harmonic Layers**: Base tone + 2nd/3rd harmonics for richness
 - **Noise Component**: Realistic explosion texture
 - **Envelope Shaping**: Exponential decay with size-based duration

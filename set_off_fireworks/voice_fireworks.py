@@ -38,6 +38,9 @@ class Firework:
         ]
         self.colors = random.choice(color_sets)
         
+        # Play launch sound when firework is created
+        self.play_launch_sound()
+        
     def update(self):
         if not self.exploded:
             # Move rocket towards target
@@ -84,6 +87,81 @@ class Firework:
                 'size': random.uniform(3, 8) * self.size_multiplier
             }
             self.particles.append(particle)
+    
+    def play_launch_sound(self):
+        """Generate and play launch sound when firework is fired"""
+        try:
+            # Generate launch/whoosh sound
+            sample_rate = 22050
+            duration = 0.8 + self.size_multiplier * 0.4  # Launch sound duration
+            
+            # Create time array
+            t = np.linspace(0, duration, int(sample_rate * duration))
+            
+            # Generate launch sound components based on size
+            if self.size_multiplier < 0.5:
+                # Small firework launch
+                base_freq = 80 + random.randint(0, 40)
+                sweep_range = 60
+                noise_intensity = 0.2
+            elif self.size_multiplier < 1.0:
+                # Medium firework launch
+                base_freq = 60 + random.randint(0, 30)
+                sweep_range = 80
+                noise_intensity = 0.3
+            else:
+                # Large firework launch
+                base_freq = 40 + random.randint(0, 20)
+                sweep_range = 100
+                noise_intensity = 0.4
+            
+            # Create frequency sweep (whoosh effect)
+            frequency_sweep = base_freq + sweep_range * np.exp(-3 * t)
+            
+            # Generate whoosh sound with frequency sweep
+            whoosh_wave = np.sin(2 * np.pi * frequency_sweep * t)
+            
+            # Add pink noise for realistic launch texture
+            noise = np.random.normal(0, noise_intensity, len(t))
+            
+            # Combine whoosh and noise
+            launch_wave = 0.7 * whoosh_wave + 0.3 * noise
+            
+            # Apply launch envelope (quick attack, gradual decay)
+            attack_time = 0.1
+            attack_samples = int(sample_rate * attack_time)
+            
+            envelope = np.ones_like(t)
+            # Quick attack
+            envelope[:attack_samples] = np.linspace(0, 1, attack_samples)
+            # Gradual decay
+            envelope[attack_samples:] = np.exp(-2 * (t[attack_samples:] - attack_time))
+            
+            launch_wave *= envelope
+            
+            # Add subtle crackle for larger launches
+            if self.size_multiplier > 0.6:
+                crackle_freq = 400 + random.randint(0, 200)
+                crackle = 0.15 * np.sin(2 * np.pi * crackle_freq * t) * np.random.choice([0, 1], len(t), p=[0.8, 0.2])
+                launch_wave += crackle * envelope
+            
+            # Normalize and convert to pygame format
+            launch_wave = np.clip(launch_wave, -1, 1)
+            launch_wave = (launch_wave * 32767).astype(np.int16)
+            
+            # Create stereo sound
+            stereo_wave = np.column_stack((launch_wave, launch_wave))
+            
+            # Play the launch sound
+            launch_sound = pygame.sndarray.make_sound(stereo_wave)
+            launch_volume = min(0.6, 0.2 + self.size_multiplier * 0.4)  # Volume based on size
+            launch_sound.set_volume(launch_volume)
+            launch_sound.play()
+            
+        except Exception as e:
+            # If sound generation fails, continue without sound
+            print(f"Launch sound generation error: {e}")
+            pass
     
     def play_explosion_sound(self):
         """Generate and play explosion sound based on firework size"""
@@ -226,8 +304,8 @@ class VoiceControlledFireworks:
         
         # Voice analysis
         self.volume_history = deque(maxlen=30)
-        self.volume_threshold = 0.01  # Minimum volume to trigger fireworks
-        self.max_volume = 0.5  # Maximum expected volume for scaling
+        self.volume_threshold = 0.005  # Minimum volume to trigger fireworks (more sensitive)
+        self.max_volume = 0.3  # Maximum expected volume for scaling (lower for more sensitivity)
         
         # Fireworks
         self.fireworks = []
@@ -355,23 +433,19 @@ class VoiceControlledFireworks:
                         (bar_x, bar_y, bar_width, bar_height), 2)
         
         # Labels
-        font = pygame.font.Font(None, 36)
-        volume_text = f"Voice Volume: {self.current_volume:.3f}"
+        font = pygame.font.Font(None, 24)
+        volume_text = f"Vol: {self.current_volume:.2f}"
         text_surface = font.render(volume_text, True, (255, 255, 255))
-        self.screen.blit(text_surface, (bar_x, bar_y - 35))
+        self.screen.blit(text_surface, (bar_x, bar_y - 28))
     
     def draw_instructions(self):
         """Draw usage instructions"""
-        font = pygame.font.Font(None, 32)
+        font = pygame.font.Font(None, 24)
         instructions = [
-            "🎆 Voice-Controlled Fireworks 🎆",
-            "",
-            "🎤 Speak into your microphone to launch fireworks!",
-            "📢 Louder voice = Bigger fireworks",
-            "🔇 Quiet voice = Small fireworks",
-            "🎯 Try different volumes for different effects",
-            "",
-            "Press ESC to exit"
+            "🎆 Voice Fireworks",
+            "🎤 Speak → Launch",
+            "📢 Loud = Big",
+            "ESC = Exit"
         ]
         
         for i, instruction in enumerate(instructions):
@@ -382,26 +456,24 @@ class VoiceControlledFireworks:
                 color = (100, 255, 100)
             
             text_surface = font.render(instruction, True, color)
-            self.screen.blit(text_surface, (50, 120 + i * 35))
+            self.screen.blit(text_surface, (50, 120 + i * 25))
     
     def draw_statistics(self):
         """Draw fireworks statistics"""
-        font = pygame.font.Font(None, 28)
+        font = pygame.font.Font(None, 20)
         stats = [
-            f"Total Fireworks Launched: {self.total_fireworks}",
-            f"Active Fireworks: {len(self.fireworks)}"
+            f"Total: {self.total_fireworks}",
+            f"Active: {len(self.fireworks)}"
         ]
         
         for i, stat in enumerate(stats):
             text_surface = font.render(stat, True, (200, 200, 255))
-            self.screen.blit(text_surface, (self.width - 300, 50 + i * 30))
+            self.screen.blit(text_surface, (self.width - 120, 50 + i * 22))
     
     def run(self):
         """Main game loop"""
-        print("🎆 Voice-Controlled Fireworks Started!")
-        print("🎤 Speak into your microphone to launch fireworks!")
-        print("📢 Louder voice = Bigger fireworks")
-        print("Press ESC to exit")
+        print("🎆 Voice Fireworks Started!")
+        print("🎤 Speak → Fireworks | ESC → Exit")
         
         running = True
         
