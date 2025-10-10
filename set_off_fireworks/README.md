@@ -17,6 +17,15 @@ An interactive voice-controlled fireworks display that responds to your voice in
 - **Glow Effects**: Beautiful particle glow and fade effects
 - **Animated Background**: Twinkling stars in a night sky
 
+### 🔊 Dynamic Sound Effects
+- **Launch Sounds**: Whoosh sounds when rockets launch
+- **Size-Based Explosion Audio**: Louder voice = Deeper, more powerful explosion sounds
+- **Realistic Audio Physics**: 
+  - Small fireworks: Higher pitch, quick sparkle sounds
+  - Medium fireworks: Balanced rumble and crackle effects
+  - Large fireworks: Deep bass rumble with extended sparkle effects
+- **Real-time Audio Generation**: Sounds generated dynamically based on firework properties
+
 ### 🎨 Interactive Interface
 - **Real-time Volume Indicator**: Visual bar showing current voice volume
 - **Color-coded Feedback**: Green (good level), Yellow (loud), Red (very loud)

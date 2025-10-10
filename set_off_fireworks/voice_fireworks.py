@@ -7,15 +7,104 @@ import math
 import random
 import time
 from collections import deque
+import os
+
+class FireworkSoundGenerator:
+    """Generate different firework explosion sounds based on size"""
+    
+    def __init__(self):
+        pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+        self.sample_rate = 22050
+        
+    def generate_explosion_sound(self, size_multiplier, duration=1.0):
+        """Generate explosion sound based on firework size"""
+        samples = int(self.sample_rate * duration)
+        t = np.linspace(0, duration, samples)
+        
+        # Base frequency depends on size (bigger = lower frequency)
+        base_freq = max(80, 200 - size_multiplier * 60)
+        
+        # Create explosion sound with multiple components
+        sound = np.zeros(samples)
+        
+        # Main explosion burst (decreasing amplitude)
+        burst_duration = min(0.3, duration * 0.3)
+        burst_samples = int(burst_duration * self.sample_rate)
+        
+        # Low frequency rumble
+        rumble = np.sin(2 * np.pi * base_freq * t[:burst_samples])
+        rumble *= np.exp(-t[:burst_samples] * 8)  # Fast decay
+        
+        # High frequency crackle
+        crackle_freq = base_freq * 4 + size_multiplier * 500
+        crackle = np.random.random(burst_samples) * 2 - 1  # Random noise between -1 and 1
+        crackle *= np.sin(2 * np.pi * crackle_freq * t[:burst_samples])
+        crackle *= np.exp(-t[:burst_samples] * 12)  # Very fast decay
+        
+        # Sparkle effect (longer duration for bigger fireworks)
+        sparkle_duration = 0.2 + size_multiplier * 0.3
+        sparkle_samples = min(int(sparkle_duration * self.sample_rate), samples)
+        sparkle = np.random.normal(0, 0.1, sparkle_samples)
+        sparkle *= np.exp(-t[:sparkle_samples] * 3)  # Gradual decay
+        
+        # Combine all components
+        sound[:burst_samples] += rumble * (0.5 + size_multiplier * 0.3)
+        sound[:burst_samples] += crackle * (0.3 + size_multiplier * 0.2)
+        sound[:sparkle_samples] += sparkle * (0.2 + size_multiplier * 0.3)
+        
+        # Apply overall envelope
+        envelope = np.exp(-t * (2 + size_multiplier))
+        sound *= envelope
+        
+        # Volume based on size
+        volume = min(0.8, 0.3 + size_multiplier * 0.5)
+        sound *= volume
+        
+        # Normalize and convert to pygame format
+        sound = np.clip(sound, -1, 1)
+        sound = (sound * 32767).astype(np.int16)
+        
+        # Create stereo sound
+        stereo_sound = np.column_stack([sound, sound])
+        
+        return pygame.sndarray.make_sound(stereo_sound)
+    
+    def generate_launch_sound(self, duration=0.5):
+        """Generate rocket launch sound"""
+        samples = int(self.sample_rate * duration)
+        t = np.linspace(0, duration, samples)
+        
+        # Whoosh sound with frequency sweep
+        freq_start = 100
+        freq_end = 400
+        frequency = freq_start + (freq_end - freq_start) * (t / duration)
+        
+        # Create whoosh with noise
+        whoosh = np.sin(2 * np.pi * frequency * t)
+        noise = np.random.normal(0, 0.3, samples)
+        
+        # Combine and apply envelope
+        sound = whoosh * 0.6 + noise * 0.4
+        envelope = np.sin(np.pi * t / duration)  # Bell curve
+        sound *= envelope * 0.3  # Lower volume for launch
+        
+        # Convert to pygame format
+        sound = np.clip(sound, -1, 1)
+        sound = (sound * 32767).astype(np.int16)
+        stereo_sound = np.column_stack([sound, sound])
+        
+        return pygame.sndarray.make_sound(stereo_sound)
 
 class Firework:
-    def __init__(self, x, y, target_x, target_y, size_multiplier=1.0):
+    def __init__(self, x, y, target_x, target_y, size_multiplier=1.0, sound_generator=None):
         self.x = x
         self.y = y
         self.target_x = target_x
         self.target_y = target_y
         self.size_multiplier = size_multiplier
+        self.sound_generator = sound_generator
         self.exploded = False
+        self.sound_played = False  # Track if explosion sound was played
         self.particles = []
         
         # Launch rocket properties
@@ -49,6 +138,11 @@ class Firework:
                 # Reached target, explode!
                 self.exploded = True
                 self.create_explosion()
+                # Play explosion sound
+                if self.sound_generator and not self.sound_played:
+                    explosion_sound = self.sound_generator.generate_explosion_sound(self.size_multiplier)
+                    explosion_sound.play()
+                    self.sound_played = True
             else:
                 # Move rocket
                 self.rocket_x += (dx / distance) * self.rocket_speed
@@ -152,6 +246,9 @@ class VoiceControlledFireworks:
         self.volume_threshold = 0.01  # Minimum volume to trigger fireworks
         self.max_volume = 0.5  # Maximum expected volume for scaling
         
+        # Sound effects
+        self.sound_generator = FireworkSoundGenerator()
+        
         # Fireworks
         self.fireworks = []
         self.last_firework_time = 0
@@ -226,8 +323,12 @@ class VoiceControlledFireworks:
         volume_normalized = volume / self.max_volume
         size_multiplier = 0.3 + (volume_normalized ** 0.7) * 2.0
         
-        firework = Firework(launch_x, launch_y, target_x, target_y, size_multiplier)
+        firework = Firework(launch_x, launch_y, target_x, target_y, size_multiplier, self.sound_generator)
         self.fireworks.append(firework)
+        
+        # Play launch sound
+        launch_sound = self.sound_generator.generate_launch_sound()
+        launch_sound.play()
         self.total_fireworks += 1
         self.last_firework_time = time.time()
     
@@ -378,6 +479,7 @@ class VoiceControlledFireworks:
             self.stream.stop_stream()
             self.stream.close()
             self.audio.terminate()
+            pygame.mixer.quit()
             pygame.quit()
 
 if __name__ == "__main__":
