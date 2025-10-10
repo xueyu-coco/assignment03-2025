@@ -1,0 +1,9 @@
+# Voice-Controlled Fireworks Dependencies
+pygame==2.6.1
+numpy>=1.21.0
+pyaudio>=0.2.11
+scipy>=1.7.0
+
+# Optional for enhanced audio processing
+librosa>=0.10.0  # For advanced audio analysis
+matplotlib>=3.5.0  # For audio visualization graphs
