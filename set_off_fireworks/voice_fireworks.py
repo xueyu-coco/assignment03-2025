@@ -8,6 +8,96 @@ import random
 import time
 from collections import deque
 
+class Monster:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.size = random.randint(20, 40)
+        self.color = random.choice([
+            (150, 0, 0),      # Dark red
+            (0, 100, 0),      # Dark green  
+            (100, 0, 100),    # Purple
+            (100, 100, 0),    # Dark yellow
+            (0, 0, 150)       # Dark blue
+        ])
+        self.speed = random.uniform(0.5, 2.0)
+        self.direction = random.uniform(0, 2 * math.pi)
+        self.health = 1
+        self.alive = True
+        self.blink_timer = 0
+        self.spawn_time = time.time()
+        
+    def update(self, screen_width, screen_height):
+        """Update monster position and behavior"""
+        if not self.alive:
+            return
+            
+        # Move monster
+        self.x += math.cos(self.direction) * self.speed
+        self.y += math.sin(self.direction) * self.speed
+        
+        # Bounce off screen edges
+        if self.x <= self.size or self.x >= screen_width - self.size:
+            self.direction = math.pi - self.direction
+        if self.y <= self.size or self.y >= screen_height - self.size:
+            self.direction = -self.direction
+            
+        # Keep within bounds
+        self.x = max(self.size, min(screen_width - self.size, self.x))
+        self.y = max(self.size, min(screen_height - self.size, self.y))
+        
+        # Occasionally change direction for unpredictable movement
+        if random.random() < 0.02:
+            self.direction += random.uniform(-0.5, 0.5)
+            
+        self.blink_timer += 1
+        
+    def draw(self, screen):
+        """Draw the monster with evil eyes"""
+        if not self.alive:
+            return
+            
+        # Main body (pulsing effect)
+        pulse = 1 + 0.1 * math.sin(self.blink_timer * 0.1)
+        current_size = int(self.size * pulse)
+        
+        # Monster body
+        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), current_size)
+        
+        # Evil eyes
+        eye_offset = current_size // 3
+        eye_size = max(3, current_size // 8)
+        
+        # Left eye
+        pygame.draw.circle(screen, (255, 0, 0), 
+                         (int(self.x - eye_offset), int(self.y - eye_offset)), eye_size)
+        # Right eye  
+        pygame.draw.circle(screen, (255, 0, 0),
+                         (int(self.x + eye_offset), int(self.y - eye_offset)), eye_size)
+        
+        # Mouth (evil grin)
+        mouth_points = [
+            (int(self.x - eye_offset), int(self.y + eye_offset)),
+            (int(self.x), int(self.y + eye_offset + 5)),
+            (int(self.x + eye_offset), int(self.y + eye_offset))
+        ]
+        pygame.draw.polygon(screen, (0, 0, 0), mouth_points)
+        
+    def check_collision(self, firework):
+        """Check if firework explosion hits this monster"""
+        if not self.alive or not firework.exploded:
+            return False
+            
+        # Check distance to explosion center
+        distance = math.sqrt((self.x - firework.target_x)**2 + (self.y - firework.target_y)**2)
+        explosion_radius = firework.explosion_size
+        
+        return distance < explosion_radius + self.size
+        
+    def take_damage(self):
+        """Monster takes damage and dies"""
+        self.alive = False
+
 class Firework:
     def __init__(self, x, y, target_x, target_y, size_multiplier=1.0):
         self.x = x
@@ -316,6 +406,14 @@ class VoiceControlledFireworks:
         self.background_color = [10, 10, 30]  # Dark blue night sky
         self.stars = self.create_stars()
         
+        # Game modes and monster system
+        self.game_mode = "monster_hunt"  # "normal" or "monster_hunt"
+        self.monsters = []
+        self.score = 0
+        self.last_monster_spawn = 0
+        self.monster_spawn_interval = 3.0  # Spawn monster every 3 seconds
+        self.max_monsters = 8  # Maximum monsters on screen
+        
         # Statistics
         self.total_fireworks = 0
         self.current_volume = 0
@@ -403,6 +501,56 @@ class VoiceControlledFireworks:
         self.total_fireworks += 1
         self.last_firework_time = time.time()
     
+    def spawn_monster(self):
+        """Spawn a new monster at random edge of screen"""
+        current_time = time.time()
+        
+        # Check if we should spawn a monster
+        if (current_time - self.last_monster_spawn < self.monster_spawn_interval or 
+            len(self.monsters) >= self.max_monsters):
+            return
+            
+        # Spawn at random edge
+        edge = random.choice(['top', 'bottom', 'left', 'right'])
+        if edge == 'top':
+            x, y = random.randint(50, self.width - 50), 50
+        elif edge == 'bottom':
+            x, y = random.randint(50, self.width - 50), self.height - 50
+        elif edge == 'left':
+            x, y = 50, random.randint(50, self.height - 50)
+        else:  # right
+            x, y = self.width - 50, random.randint(50, self.height - 50)
+            
+        monster = Monster(x, y)
+        self.monsters.append(monster)
+        self.last_monster_spawn = current_time
+    
+    def update_monsters(self):
+        """Update all monsters and check for collisions"""
+        # Update monster positions
+        for monster in self.monsters[:]:
+            if monster.alive:
+                monster.update(self.width, self.height)
+            else:
+                # Remove dead monsters after a short delay
+                if time.time() - monster.spawn_time > 1.0:
+                    self.monsters.remove(monster)
+    
+    def check_monster_collisions(self):
+        """Check if any fireworks hit monsters"""
+        for firework in self.fireworks:
+            if firework.exploded:
+                for monster in self.monsters:
+                    if monster.alive and monster.check_collision(firework):
+                        monster.take_damage()
+                        self.score += 1
+                        # Visual feedback - could add particle effect here
+    
+    def draw_monsters(self):
+        """Draw all monsters"""
+        for monster in self.monsters:
+            monster.draw(self.screen)
+    
     def update_background(self):
         """Update background with twinkling stars"""
         # Base night sky color
@@ -458,12 +606,21 @@ class VoiceControlledFireworks:
     def draw_instructions(self):
         """Draw usage instructions"""
         font = pygame.font.Font(None, 24)
-        instructions = [
-            "🎆 Voice Fireworks",
-            "🎤 Speak → Launch",
-            "📢 Loud = Big",
-            "ESC = Exit"
-        ]
+        
+        if self.game_mode == "monster_hunt":
+            instructions = [
+                "🎆 New Year Monster Hunt",
+                "🎤 Voice → Launch Fireworks",
+                "👹 Destroy Monsters for Points",
+                "M = Switch Mode | ESC = Exit"
+            ]
+        else:
+            instructions = [
+                "🎆 Voice Fireworks",
+                "🎤 Speak → Launch", 
+                "📢 Loud = Big",
+                "M = Monster Mode | ESC = Exit"
+            ]
         
         for i, instruction in enumerate(instructions):
             color = (255, 255, 255)
@@ -476,21 +633,45 @@ class VoiceControlledFireworks:
             self.screen.blit(text_surface, (50, 120 + i * 25))
     
     def draw_statistics(self):
-        """Draw fireworks statistics"""
-        font = pygame.font.Font(None, 20)
-        stats = [
-            f"Total: {self.total_fireworks}",
-            f"Active: {len(self.fireworks)}"
-        ]
+        """Draw game statistics and score"""
+        font = pygame.font.Font(None, 24)
         
-        for i, stat in enumerate(stats):
-            text_surface = font.render(stat, True, (200, 200, 255))
-            self.screen.blit(text_surface, (self.width - 120, 50 + i * 22))
+        if self.game_mode == "monster_hunt":
+            # Monster hunt mode - show score prominently
+            score_text = f"🏆 Score: {self.score}"
+            text_surface = font.render(score_text, True, (255, 215, 0))  # Gold color
+            self.screen.blit(text_surface, (self.width - 150, 30))
+            
+            # Additional stats
+            small_font = pygame.font.Font(None, 18)
+            stats = [
+                f"Monsters: {len([m for m in self.monsters if m.alive])}",
+                f"Fireworks: {len(self.fireworks)}"
+            ]
+            
+            for i, stat in enumerate(stats):
+                text_surface = small_font.render(stat, True, (200, 200, 255))
+                self.screen.blit(text_surface, (self.width - 120, 65 + i * 20))
+        else:
+            # Normal mode - show firework stats
+            small_font = pygame.font.Font(None, 20)
+            stats = [
+                f"Total: {self.total_fireworks}",
+                f"Active: {len(self.fireworks)}"
+            ]
+            
+            for i, stat in enumerate(stats):
+                text_surface = small_font.render(stat, True, (200, 200, 255))
+                self.screen.blit(text_surface, (self.width - 120, 50 + i * 22))
     
     def run(self):
         """Main game loop"""
-        print("🎆 Voice Fireworks Started!")
-        print("🎤 Speak → Fireworks | ESC → Exit")
+        if self.game_mode == "monster_hunt":
+            print("🎆 New Year Monster Hunt Mode Started!")
+            print("🎤 Use voice to launch fireworks and destroy monsters! | ESC → Exit")
+        else:
+            print("🎆 Voice Fireworks Started!")
+            print("🎤 Speak → Fireworks | ESC → Exit")
         
         running = True
         
@@ -506,6 +687,15 @@ class VoiceControlledFireworks:
                         elif event.key == pygame.K_SPACE:
                             # Manual firework for testing
                             self.create_firework(self.max_volume * 0.5)
+                        elif event.key == pygame.K_m:
+                            # Toggle game mode
+                            if self.game_mode == "normal":
+                                self.game_mode = "monster_hunt"
+                                print("🎆 Switched to New Year Monster Hunt Mode!")
+                            else:
+                                self.game_mode = "normal"
+                                self.monsters.clear()  # Clear all monsters
+                                print("🎆 Switched to Normal Fireworks Mode!")
                 
                 # Analyze voice input
                 volume = self.analyze_audio()
@@ -520,8 +710,18 @@ class VoiceControlledFireworks:
                     if firework.is_finished():
                         self.fireworks.remove(firework)
                 
+                # Monster hunt mode specific updates
+                if self.game_mode == "monster_hunt":
+                    self.spawn_monster()
+                    self.update_monsters()
+                    self.check_monster_collisions()
+                
                 # Draw everything
                 self.update_background()
+                
+                # Draw monsters (in monster hunt mode)
+                if self.game_mode == "monster_hunt":
+                    self.draw_monsters()
                 
                 # Draw fireworks
                 for firework in self.fireworks:

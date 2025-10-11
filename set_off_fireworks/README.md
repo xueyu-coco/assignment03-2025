@@ -1,14 +1,27 @@
 # Voice-Controlled Fireworks 🎆🎤
 
-An interactive voice-controlled fireworks display that responds to your voice input in real-time. The louder you speak, the bigger and more spectacular the fireworks become!
+An interactive voice-controlled fireworks display with **New Year Monster Hunt Mode**! Use your voice to launch fireworks, destroy monsters, and celebrate the New Year with spectacular effects.
 
 ## 🌟 Features
+
+### 🎮 Dual Game Modes
+- **Normal Mode**: Classic voice-controlled fireworks display
+- **Monster Hunt Mode**: New Year themed monster hunting with voice-controlled fireworks
+- **Real-time Mode Switching**: Press 'M' to switch between modes instantly
 
 ### 🎤 Voice Control
 - **Volume-Reactive Fireworks**: Speak into your microphone to launch fireworks
 - **Dynamic Sizing**: Louder voice = Bigger fireworks, Quieter voice = Smaller fireworks
-- **Real-time Audio Analysis**: Advanced voice volume detection and processing
-- **Smart Cooldown**: Intelligent timing to prevent firework spam
+- **Ultra-Sensitive Detection**: Advanced voice volume detection with 3x signal amplification
+- **Smart Cooldown**: Intelligent timing with 150ms response time
+
+### 👹 Monster Hunt Mode (New Year Theme)
+- **Evil Monsters**: Randomly spawning monsters with glowing red eyes
+- **Voice Combat**: Use voice-controlled fireworks to destroy monsters
+- **Scoring System**: Earn points for each monster destroyed
+- **Dynamic Spawning**: Monsters appear every 3 seconds (max 8 on screen)
+- **Collision Detection**: Firework explosions destroy monsters within blast radius
+- **Real-time Stats**: Live monster count and score tracking
 
 ### 🎆 Spectacular Visual Effects
 - **Realistic Rocket Launch**: Rockets fly from bottom to target with trails
@@ -71,14 +84,24 @@ python voice_fireworks.py
 
 ### Controls
 - **🎤 Speak into microphone**: Launch fireworks (volume determines size)
+- **M**: Switch between Normal and Monster Hunt modes
 - **SPACE**: Manual test firework launch
 - **ESC**: Exit the application
 
-### Voice Instructions
+### Game Modes
+
+#### 🎆 Normal Mode
 1. **Speak normally**: Creates medium-sized fireworks
 2. **Speak loudly**: Creates large, spectacular fireworks
 3. **Whisper**: Creates small, delicate fireworks
 4. **Stay quiet**: No fireworks launch
+
+#### 👹 Monster Hunt Mode
+1. **Speak to launch fireworks**: Same voice control as normal mode
+2. **Aim for monsters**: Firework explosions destroy monsters in blast radius
+3. **Earn points**: Get 1 point for each monster destroyed
+4. **Watch the score**: Golden score display in top-right corner
+5. **Survive the waves**: New monsters spawn every 3 seconds
 
 ### Volume Indicator
 - **Gray Bar**: Too quiet (below threshold)
