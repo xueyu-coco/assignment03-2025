@@ -91,8 +91,10 @@ python voice_fireworks.py
 ### Audio Processing
 - **Sample Rate**: 44.1 kHz
 - **Chunk Size**: 1024 samples
-- **Volume Analysis**: RMS (Root Mean Square) calculation
-- **Enhanced Sensitivity**: Lower threshold (0.005) for easier voice triggering
+- **Volume Analysis**: Enhanced RMS with 2x signal amplification + 1.5x sensitivity boost
+- **Ultra Sensitivity**: Extremely low threshold (0.002) for maximum responsiveness
+- **Fast Response**: Shorter volume history (20 samples) for quicker reaction
+- **Smart Smoothing**: Weighted average with recent samples for stability
 - **Threshold Detection**: Automatic noise floor adjustment
 
 ### Sound Effects System

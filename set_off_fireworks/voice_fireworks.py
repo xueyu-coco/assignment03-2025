@@ -302,15 +302,15 @@ class VoiceControlledFireworks:
             frames_per_buffer=self.chunk_size
         )
         
-        # Voice analysis
-        self.volume_history = deque(maxlen=30)
-        self.volume_threshold = 0.005  # Minimum volume to trigger fireworks (more sensitive)
-        self.max_volume = 0.3  # Maximum expected volume for scaling (lower for more sensitivity)
+        # Voice analysis (Ultra sensitive settings)
+        self.volume_history = deque(maxlen=20)  # Shorter history for faster response
+        self.volume_threshold = 0.002  # Even lower threshold for maximum sensitivity
+        self.max_volume = 0.2  # Lower max volume for easier triggering of large fireworks
         
         # Fireworks
         self.fireworks = []
         self.last_firework_time = 0
-        self.firework_cooldown = 0.3  # Minimum time between fireworks (seconds)
+        self.firework_cooldown = 0.15  # Faster cooldown for more responsive firing
         
         # Background and effects
         self.background_color = [10, 10, 30]  # Dark blue night sky
@@ -334,13 +334,26 @@ class VoiceControlledFireworks:
         return stars
     
     def analyze_audio(self):
-        """Analyze audio input for volume"""
+        """Analyze audio input for volume with enhanced sensitivity"""
         try:
             audio_data = self.stream.read(self.chunk_size, exception_on_overflow=False)
             audio_array = np.frombuffer(audio_data, dtype=np.float32)
             
-            # Calculate volume (RMS)
+            # Apply audio amplification for better sensitivity
+            audio_array = audio_array * 2.0  # Amplify signal by 2x
+            
+            # Calculate volume (RMS) with enhanced processing
             volume = np.sqrt(np.mean(audio_array**2))
+            
+            # Apply additional sensitivity boost
+            volume = volume * 1.5  # Additional 1.5x boost
+            
+            # Smooth volume using recent history for stability
+            if len(self.volume_history) > 0:
+                # Use weighted average with recent samples
+                recent_avg = np.mean(list(self.volume_history)[-5:]) if len(self.volume_history) >= 5 else 0
+                volume = 0.7 * volume + 0.3 * recent_avg  # Blend current with recent
+            
             volume = min(volume, self.max_volume)  # Cap the volume
             
             self.volume_history.append(volume)
@@ -352,19 +365,23 @@ class VoiceControlledFireworks:
             return 0
     
     def should_launch_firework(self, volume):
-        """Determine if we should launch a firework based on volume"""
+        """Determine if we should launch a firework based on volume with ultra sensitivity"""
         current_time = time.time()
         
         # Check cooldown
         if current_time - self.last_firework_time < self.firework_cooldown:
             return False
         
-        # Check volume threshold
+        # Check volume threshold (ultra sensitive)
         if volume < self.volume_threshold:
             return False
         
-        # Add some randomness to make it more natural
-        probability = min(1.0, volume / self.max_volume * 2)
+        # Enhanced probability calculation for better responsiveness
+        # Lower threshold needed, higher chance of firing
+        base_probability = 0.8  # High base probability
+        volume_boost = (volume / self.volume_threshold) * 0.2  # Additional boost based on volume
+        probability = min(1.0, base_probability + volume_boost)
+        
         return random.random() < probability
     
     def create_firework(self, volume):
