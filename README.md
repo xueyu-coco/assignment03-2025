@@ -1,6 +1,6 @@
 # AI Programming Course - Assignment 03
 
-A comprehensive collection of AI-powered applications featuring interactive chatbots, fortune-telling systems, and advanced image generation tools. This repository contains two major projects developed as part of the AI programming course.
+A comprehensive collection of AI-powered applications featuring interactive chatbots, fortune-telling systems, advanced image generation tools, and immersive audio-visual experiences. This repository contains four major projects developed as part of the AI programming course.
 
 ## 📁 Project Overview
 
@@ -9,6 +9,12 @@ An interactive AI chatbot application featuring tarot card readings, horoscope p
 
 ### 🎨 [Week 05: AI Creative Studio](./week05-AI_IMAGE_GENERATOR/)
 A comprehensive AI-powered creative toolkit built with Stable Diffusion, featuring image generation, real-time video processing, and face detection with dynamic AI overlays.
+
+### 🎵 [Week 06: Music Dance Visualizer](./week06_audio_project/music_dance/)
+An AI-powered music visualization and dance system with real-time audio analysis, multiple dance styles, and interactive voice control features.
+
+### 🎆 [Week 06: Voice-Controlled Fireworks](./set_off_fireworks/)
+An immersive voice-controlled fireworks display with New Year Monster Hunt combat mode, featuring real-time audio processing and spectacular visual effects.
 
 ---
 
@@ -73,7 +79,67 @@ streamlit run combined_creative_studio.py
 - **Education**: Learn AI image generation techniques
 - **Entertainment**: Create custom images and interactive video effects
 
-## 🎮 Applications
+---
+
+## 🎵 Week 06: Music Dance Visualizer
+
+### ✨ Key Features
+- **🎭 Multiple Dance Styles**: 7 unique dancer types (Human, Abstract, Robot, Hip-Hop, Ballet, Cartoon, Animal)
+- **🎨 Real-time Audio Visualization**: Dynamic particle systems and spectrum analysis
+- **🎤 Voice Control**: Speech recognition and real-time voice response systems
+- **🎵 Music Synchronization**: Advanced beat detection and tempo analysis
+- **🌈 Dynamic Effects**: Particle systems, lighting effects, and mood-responsive backgrounds
+- **🎮 Interactive Controls**: Real-time tempo adjustment and dance style switching
+
+### 🛠️ Technical Stack
+- **Framework**: Pygame for graphics and audio processing
+- **Audio Analysis**: Librosa for music feature extraction
+- **Voice Processing**: Real-time microphone input with speech recognition
+- **Visual Effects**: Custom particle systems and dynamic lighting
+
+### 🚀 Quick Start
+```bash
+cd week06_audio_project/music_dance
+pip install -r requirements_dance.txt
+python enhanced_dance_visualizer.py
+```
+
+### 🎯 Use Cases
+- **Entertainment**: Interactive music visualization and dance performances
+- **Education**: Music theory demonstration and rhythm training
+- **Creative Arts**: Visual music performance and artistic expression
+- **Voice Interaction**: Hands-free control and voice-responsive entertainment
+
+---
+
+## 🎆 Week 06: Voice-Controlled Fireworks
+
+### ✨ Key Features
+- **� Voice-Reactive Fireworks**: Launch fireworks using voice volume and intensity
+- **👹 Monster Hunt Combat Mode**: New Year themed survival game with monster battles
+- **⚔️ Complete Combat System**: Player health, monster fireballs, and defensive mechanics
+- **🔊 Dynamic Sound Effects**: Realistic launch and explosion audio with size-based variations
+- **�🎮 Dual Game Modes**: Peaceful fireworks display and intense combat survival
+- **🌟 Spectacular Visual Effects**: Particle physics, multiple colors, and realistic explosions
+
+### 🛠️ Technical Stack
+- **Framework**: Pygame for graphics and PyAudio for real-time voice processing
+- **Audio Processing**: Ultra-sensitive voice detection with advanced signal amplification
+- **Game Engine**: Custom physics simulation with collision detection
+- **Sound Generation**: Procedural audio synthesis for realistic firework sounds
+
+### 🚀 Quick Start
+```bash
+cd set_off_fireworks
+pip install -r requirements.txt
+python voice_fireworks.py
+```
+
+### 🎯 Use Cases
+- **Entertainment**: Voice-controlled celebration and interactive gaming
+- **Party Activities**: Group entertainment with voice-based fireworks launching
+- **Gaming**: Survival combat with voice-controlled weapons
+- **Audio Technology**: Real-time voice processing and audio-visual synchronization
 
 ---
 
@@ -332,36 +398,52 @@ We welcome contributions to improve these AI applications! Here's how you can he
 ---
 
 4. **Slow Generation**
-
-## 🏆 Project Statistics   - Enable GPU acceleration
-
+   - Enable GPU acceleration
    - Reduce inference steps for faster generation
+   - Use LCM models for rapid prototyping
 
-### Week 04 - Lucky AI   - Use LCM models for rapid prototyping
+## 📚 Learning Resources
 
-- **Lines of Code**: ~800+ lines
-
-- **Features**: 6 major components## 📚 Learning Resources
-
-- **AI Personalities**: 5 different assistants
-
-- **Memory System**: Advanced context retention### Notebooks
-
+### Notebooks
 - `week05_notebook.ipynb`: Comprehensive tutorial on AI image generation
+- `python_classes_tutorial.ipynb`: Python programming fundamentals
 
-### Week 05 - AI Image Generator- `python_classes_tutorial.ipynb`: Python programming fundamentals
-
-- **Lines of Code**: ~2,600+ lines
-
-- **Applications**: 8 different interfaces### Documentation
-
-- **AI Models**: Multiple Stable Diffusion variants- [Stable Diffusion Documentation](https://huggingface.co/docs/diffusers)
-
-- **Image Types**: Unlimited creative possibilities- [Streamlit Documentation](https://docs.streamlit.io/)
-
+### Documentation
+- [Stable Diffusion Documentation](https://huggingface.co/docs/diffusers)
+- [Streamlit Documentation](https://docs.streamlit.io/)
 - [PyTorch Documentation](https://pytorch.org/docs/)
 
+## 🏆 Project Statistics
+
+### Week 04 - Lucky AI
+- **Lines of Code**: ~800+ lines
+- **Features**: 6 major components
+- **AI Personalities**: 5 different assistants
+- **Memory System**: Advanced context retention
+
+### Week 05 - AI Image Generator
+- **Lines of Code**: ~2,600+ lines
+- **Applications**: 8 different interfaces
+- **AI Models**: Multiple Stable Diffusion variants
+- **Image Types**: Unlimited creative possibilities
+
+### Week 06 - Music Dance Visualizer
+- **Lines of Code**: ~1,500+ lines
+- **Dance Styles**: 7 unique dancer types
+- **Audio Features**: Real-time spectrum analysis
+- **Voice Control**: Speech recognition and voice response
+
+### Week 06 - Voice-Controlled Fireworks
+- **Lines of Code**: ~990+ lines
+- **Game Modes**: 2 distinct gameplay experiences
+- **Combat System**: Complete health and attack mechanics
+- **Audio Processing**: Ultra-sensitive voice detection
+
 ### Combined Project
+- **Total Files**: 60+ Python files
+- **Dependencies**: 25+ AI/ML libraries
+- **Supported Languages**: English and Chinese
+- **Platform Support**: Cross-platform compatibility
 
 - **Total Files**: 40+ Python files## 🤝 Contributing
 
@@ -395,44 +477,77 @@ This project is open-source and available under the MIT License.
 
 ### Technologies Used- Stability AI for Stable Diffusion
 
-- **Streamlit**: Amazing web framework for AI applications- Streamlit for the amazing web framework
+## 🙏 Acknowledgments
 
-- **Hugging Face**: Diffusers library and model hosting- The open-source AI community
-
+### Technologies Used
+- **Streamlit**: Amazing web framework for AI applications
+- **Hugging Face**: Diffusers library and model hosting
 - **Stability AI**: Stable Diffusion models
-
-- **LMStudio**: Local AI model hosting platform## 🔮 Future Plans
-
+- **LMStudio**: Local AI model hosting platform
 - **OpenAI**: API compatibility and standards
+- **Pygame**: Graphics and audio processing for interactive applications
+- **Librosa**: Advanced audio analysis and music processing
+
+### Inspiration
+- **AI Community**: Open-source AI development community
+- **Educational Resources**: AI programming course materials
+- **User Feedback**: Continuous improvement based on user needs
+
+## 🔮 Future Plans
 
 - [ ] Support for more AI models (DALL-E, Midjourney-style)
-
-### Inspiration- [ ] Advanced editing capabilities
-
-- **AI Community**: Open-source AI development community- [ ] Batch generation features
-
-- **Educational Resources**: AI programming course materials- [ ] Custom model training interface
-
-- **User Feedback**: Continuous improvement based on user needs- [ ] API endpoints for integration
-
+- [ ] Advanced editing capabilities
+- [ ] Batch generation features
+- [ ] Custom model training interface
+- [ ] API endpoints for integration
 - [ ] Mobile-responsive design improvements
+- [ ] VR/AR integration for audio-visual projects
+- [ ] Multiplayer features for interactive applications
 
 ---
-
----
-
-## 📞 Support & Contact
 
 **Happy Creating! 🎨✨**
 
-### Getting Help
+For questions or support, please open an issue or contact the development team.
 
-1. **Check Documentation**: Review README files for setup instructionsFor questions or support, please open an issue or contact the development team.
-2. **Common Issues**: Check troubleshooting sections
-3. **GitHub Issues**: Create an issue for bugs or questions
+---
+
+## 🌟 Project Highlights Summary
+
+This comprehensive AI programming collection demonstrates the evolution from conversational AI to creative visual generation, and finally to immersive audio-visual interactive experiences:
+
+- **🍀 Week 04**: Advanced chatbot systems with memory and personality
+- **🎨 Week 05**: AI-powered creative tools with real-time image generation
+- **🎵 Week 06**: Interactive audio-visual applications combining music, voice, and graphics
+- **🎆 Week 06**: Gaming experiences with voice control and real-time audio processing
+
+### 🔬 Technical Evolution
+- **AI Integration**: From simple API calls to complex multi-modal systems
+- **User Interaction**: From text-based to voice-controlled interfaces
+- **Visual Complexity**: From static images to dynamic real-time graphics
+- **Audio Processing**: From basic input to advanced signal analysis and synthesis
+
+### 🎯 Learning Outcomes
+- **AI/ML Mastery**: Practical experience with modern AI frameworks and models
+- **Interactive Design**: Building engaging user interfaces with real-time feedback
+- **Audio-Visual Programming**: Combining multiple media streams for immersive experiences
+- **Game Development**: Creating interactive entertainment with physics and AI
+
+**Explore the fascinating world of AI through interactive chatbots, creative image generation, and immersive audio-visual experiences!** 🚀
+
+---
+
+*Last updated: October 11, 2025*
+
+### 📞 Support & Contact
+
+For questions, issues, or contributions:
+1. **Check Documentation**: Review individual project README files for detailed setup instructions
+2. **Common Issues**: Check troubleshooting sections in each project
+3. **GitHub Issues**: Create an issue for bugs or feature requests
 4. **Community Support**: Engage with the AI development community
 
-### Course Information
+### 📋 Course Information
 - **Institution**: AI Programming Course
 - **Assignment**: Assignment 03 - 2025
 - **Repository**: [assignment03-2025](https://github.com/xueyu-coco/assignment03-2025)
@@ -441,8 +556,6 @@ This project is open-source and available under the MIT License.
 
 **Happy Coding and Creating! 🚀✨**
 
-*Explore the fascinating world of AI through interactive chatbots and creative image generation. These projects demonstrate the practical applications of modern AI technologies in engaging, user-friendly applications.*
-
----
+*Explore the fascinating world of AI through interactive chatbots, creative image generation, and immersive audio-visual experiences. These projects demonstrate the practical applications of modern AI technologies in engaging, user-friendly applications.*
 
 *Last updated: October 2, 2025*
