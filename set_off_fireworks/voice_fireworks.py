@@ -26,6 +26,8 @@ class Monster:
         self.alive = True
         self.blink_timer = 0
         self.spawn_time = time.time()
+        self.last_attack_time = 0
+        self.attack_cooldown = random.uniform(2.0, 5.0)  # Random attack interval
         
     def update(self, screen_width, screen_height):
         """Update monster position and behavior"""
@@ -97,6 +99,95 @@ class Monster:
     def take_damage(self):
         """Monster takes damage and dies"""
         self.alive = False
+    
+    def should_attack(self, current_time):
+        """Check if monster should attack player"""
+        return (self.alive and 
+                current_time - self.last_attack_time > self.attack_cooldown)
+    
+    def attack_player(self, player_x, player_y, current_time):
+        """Create fireball aimed at player"""
+        if self.should_attack(current_time):
+            self.last_attack_time = current_time
+            self.attack_cooldown = random.uniform(3.0, 6.0)  # Reset cooldown
+            return Fireball(self.x, self.y, player_x, player_y)
+        return None
+
+class Fireball:
+    def __init__(self, x, y, target_x, target_y):
+        self.x = x
+        self.y = y
+        self.target_x = target_x
+        self.target_y = target_y
+        self.speed = 3.0
+        self.size = 8
+        self.color = (255, 100, 0)  # Orange-red fireball
+        self.trail = []
+        self.alive = True
+        
+        # Calculate direction
+        dx = target_x - x
+        dy = target_y - y
+        distance = math.sqrt(dx*dx + dy*dy)
+        if distance > 0:
+            self.vel_x = (dx / distance) * self.speed
+            self.vel_y = (dy / distance) * self.speed
+        else:
+            self.vel_x = 0
+            self.vel_y = 0
+    
+    def update(self, screen_width, screen_height):
+        """Update fireball position"""
+        if not self.alive:
+            return
+            
+        # Add current position to trail
+        self.trail.append((self.x, self.y))
+        if len(self.trail) > 10:
+            self.trail.pop(0)
+            
+        # Move fireball
+        self.x += self.vel_x
+        self.y += self.vel_y
+        
+        # Check if fireball is off screen
+        if (self.x < -50 or self.x > screen_width + 50 or 
+            self.y < -50 or self.y > screen_height + 50):
+            self.alive = False
+    
+    def draw(self, screen):
+        """Draw fireball with trail effect"""
+        if not self.alive:
+            return
+            
+        # Draw trail
+        for i, (trail_x, trail_y) in enumerate(self.trail):
+            alpha = (i + 1) / len(self.trail)
+            trail_size = int(self.size * alpha * 0.7)
+            trail_color = (int(255 * alpha), int(100 * alpha), 0)
+            if trail_size > 0:
+                pygame.draw.circle(screen, trail_color, (int(trail_x), int(trail_y)), trail_size)
+        
+        # Draw main fireball
+        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.size)
+        # Inner glow
+        pygame.draw.circle(screen, (255, 255, 100), (int(self.x), int(self.y)), self.size // 2)
+    
+    def check_collision_with_firework(self, firework):
+        """Check collision with firework explosion"""
+        if not self.alive or not firework.exploded:
+            return False
+            
+        distance = math.sqrt((self.x - firework.target_x)**2 + (self.y - firework.target_y)**2)
+        return distance < firework.explosion_size + self.size
+    
+    def check_collision_with_player(self, player_x, player_y, player_radius=30):
+        """Check collision with player area (bottom center)"""
+        if not self.alive:
+            return False
+            
+        distance = math.sqrt((self.x - player_x)**2 + (self.y - player_y)**2)
+        return distance < player_radius + self.size
 
 class Firework:
     def __init__(self, x, y, target_x, target_y, size_multiplier=1.0):
@@ -409,10 +500,18 @@ class VoiceControlledFireworks:
         # Game modes and monster system
         self.game_mode = "monster_hunt"  # "normal" or "monster_hunt"
         self.monsters = []
+        self.fireballs = []  # Monster fireballs attacking player
         self.score = 0
         self.last_monster_spawn = 0
         self.monster_spawn_interval = 3.0  # Spawn monster every 3 seconds
         self.max_monsters = 8  # Maximum monsters on screen
+        
+        # Player health system
+        self.max_health = 50
+        self.current_health = self.max_health
+        self.player_x = self.width // 2  # Player position (bottom center)
+        self.player_y = self.height - 50
+        self.game_over = False
         
         # Statistics
         self.total_fireworks = 0
@@ -526,15 +625,47 @@ class VoiceControlledFireworks:
         self.last_monster_spawn = current_time
     
     def update_monsters(self):
-        """Update all monsters and check for collisions"""
-        # Update monster positions
+        """Update all monsters and handle their attacks"""
+        current_time = time.time()
+        
+        # Update monster positions and handle attacks
         for monster in self.monsters[:]:
             if monster.alive:
                 monster.update(self.width, self.height)
+                
+                # Monster attacks player
+                fireball = monster.attack_player(self.player_x, self.player_y, current_time)
+                if fireball:
+                    self.fireballs.append(fireball)
             else:
                 # Remove dead monsters after a short delay
-                if time.time() - monster.spawn_time > 1.0:
+                if current_time - monster.spawn_time > 1.0:
                     self.monsters.remove(monster)
+    
+    def update_fireballs(self):
+        """Update monster fireballs and check collisions"""
+        for fireball in self.fireballs[:]:
+            if fireball.alive:
+                fireball.update(self.width, self.height)
+                
+                # Check collision with player
+                if fireball.check_collision_with_player(self.player_x, self.player_y):
+                    fireball.alive = False
+                    self.take_damage(1)
+                
+                # Check collision with player fireworks (defense)
+                for firework in self.fireworks:
+                    if fireball.check_collision_with_firework(firework):
+                        fireball.alive = False
+                        break
+            else:
+                self.fireballs.remove(fireball)
+    
+    def take_damage(self, damage):
+        """Player takes damage"""
+        self.current_health = max(0, self.current_health - damage)
+        if self.current_health <= 0:
+            self.game_over = True
     
     def check_monster_collisions(self):
         """Check if any fireworks hit monsters"""
@@ -550,6 +681,92 @@ class VoiceControlledFireworks:
         """Draw all monsters"""
         for monster in self.monsters:
             monster.draw(self.screen)
+    
+    def draw_fireballs(self):
+        """Draw all monster fireballs"""
+        for fireball in self.fireballs:
+            fireball.draw(self.screen)
+    
+    def draw_health_bar(self):
+        """Draw player health bar at bottom of screen"""
+        bar_width = 400
+        bar_height = 20
+        bar_x = (self.width - bar_width) // 2
+        bar_y = self.height - 40
+        
+        # Background (empty health)
+        pygame.draw.rect(self.screen, (100, 0, 0), 
+                        (bar_x, bar_y, bar_width, bar_height))
+        
+        # Health bar (current health)
+        health_ratio = self.current_health / self.max_health
+        current_width = int(bar_width * health_ratio)
+        
+        # Color changes based on health level
+        if health_ratio > 0.6:
+            color = (0, 255, 0)  # Green
+        elif health_ratio > 0.3:
+            color = (255, 255, 0)  # Yellow
+        else:
+            color = (255, 0, 0)  # Red
+            
+        if current_width > 0:
+            pygame.draw.rect(self.screen, color,
+                            (bar_x, bar_y, current_width, bar_height))
+        
+        # Border
+        pygame.draw.rect(self.screen, (255, 255, 255),
+                        (bar_x, bar_y, bar_width, bar_height), 2)
+        
+        # Health text
+        font = pygame.font.Font(None, 24)
+        health_text = f"Health: {self.current_health}/{self.max_health}"
+        text_surface = font.render(health_text, True, (255, 255, 255))
+        text_x = bar_x + (bar_width - text_surface.get_width()) // 2
+        self.screen.blit(text_surface, (text_x, bar_y - 25))
+    
+    def draw_game_over(self):
+        """Draw game over screen"""
+        if not self.game_over:
+            return
+            
+        # Semi-transparent overlay
+        overlay = pygame.Surface((self.width, self.height))
+        overlay.set_alpha(128)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+        
+        # Game over text
+        font = pygame.font.Font(None, 72)
+        game_over_text = font.render("GAME OVER", True, (255, 0, 0))
+        text_x = (self.width - game_over_text.get_width()) // 2
+        text_y = (self.height - game_over_text.get_height()) // 2 - 50
+        self.screen.blit(game_over_text, (text_x, text_y))
+        
+        # Final score
+        score_font = pygame.font.Font(None, 36)
+        score_text = score_font.render(f"Final Score: {self.score}", True, (255, 255, 255))
+        score_x = (self.width - score_text.get_width()) // 2
+        score_y = text_y + 80
+        self.screen.blit(score_text, (score_x, score_y))
+        
+        # Restart instruction
+        restart_font = pygame.font.Font(None, 28)
+        restart_text = restart_font.render("Press R to Restart or ESC to Exit", True, (200, 200, 200))
+        restart_x = (self.width - restart_text.get_width()) // 2
+        restart_y = score_y + 50
+        self.screen.blit(restart_text, (restart_x, restart_y))
+    
+    def reset_game(self):
+        """Reset game to initial state"""
+        self.current_health = self.max_health
+        self.game_over = False
+        self.score = 0
+        self.monsters.clear()
+        self.fireballs.clear()
+        self.fireworks.clear()
+        self.last_monster_spawn = 0
+        print("🎆 Game Reset! New Year Monster Hunt Restarted!")
     
     def update_background(self):
         """Update background with twinkling stars"""
@@ -611,8 +828,8 @@ class VoiceControlledFireworks:
             instructions = [
                 "🎆 New Year Monster Hunt",
                 "🎤 Voice → Launch Fireworks",
-                "👹 Destroy Monsters for Points",
-                "M = Switch Mode | ESC = Exit"
+                "👹 Destroy Monsters | 🔥 Block Fireballs",
+                "❤️ 50 HP | R = Restart | ESC = Exit"
             ]
         else:
             instructions = [
@@ -691,18 +908,26 @@ class VoiceControlledFireworks:
                             # Toggle game mode
                             if self.game_mode == "normal":
                                 self.game_mode = "monster_hunt"
+                                self.reset_game()
                                 print("🎆 Switched to New Year Monster Hunt Mode!")
                             else:
                                 self.game_mode = "normal"
                                 self.monsters.clear()  # Clear all monsters
+                                self.fireballs.clear()  # Clear all fireballs
                                 print("🎆 Switched to Normal Fireworks Mode!")
+                        elif event.key == pygame.K_r:
+                            # Restart game
+                            if self.game_over:
+                                self.reset_game()
                 
-                # Analyze voice input
-                volume = self.analyze_audio()
-                
-                # Launch fireworks based on voice
-                if self.should_launch_firework(volume):
-                    self.create_firework(volume)
+                # Skip game updates if game is over
+                if not self.game_over:
+                    # Analyze voice input
+                    volume = self.analyze_audio()
+                    
+                    # Launch fireworks based on voice
+                    if self.should_launch_firework(volume):
+                        self.create_firework(volume)
                 
                 # Update fireworks
                 for firework in self.fireworks[:]:
@@ -711,17 +936,19 @@ class VoiceControlledFireworks:
                         self.fireworks.remove(firework)
                 
                 # Monster hunt mode specific updates
-                if self.game_mode == "monster_hunt":
+                if self.game_mode == "monster_hunt" and not self.game_over:
                     self.spawn_monster()
                     self.update_monsters()
+                    self.update_fireballs()
                     self.check_monster_collisions()
                 
                 # Draw everything
                 self.update_background()
                 
-                # Draw monsters (in monster hunt mode)
+                # Draw monsters and fireballs (in monster hunt mode)
                 if self.game_mode == "monster_hunt":
                     self.draw_monsters()
+                    self.draw_fireballs()
                 
                 # Draw fireworks
                 for firework in self.fireworks:
@@ -731,6 +958,14 @@ class VoiceControlledFireworks:
                 self.draw_volume_indicator()
                 self.draw_instructions()
                 self.draw_statistics()
+                
+                # Draw health bar (in monster hunt mode)
+                if self.game_mode == "monster_hunt":
+                    self.draw_health_bar()
+                
+                # Draw game over screen if needed
+                if self.game_over:
+                    self.draw_game_over()
                 
                 pygame.display.flip()
                 self.clock.tick(60)
