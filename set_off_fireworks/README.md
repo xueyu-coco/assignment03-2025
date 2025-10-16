@@ -19,7 +19,7 @@ An interactive voice-controlled fireworks display with **New Year Monster Hunt M
 ### 👹 Monster Hunt Mode - Complete Combat System
 - **Evil Monsters**: AI-driven monsters with glowing red eyes and unpredictable movement
 - **Voice Combat**: Use voice-controlled fireworks as weapons to destroy monsters
-- **Player Health System**: Start with 50 HP, lose health from monster attacks
+- **Player Health System**: Start with 30 HP, lose health from monster attacks
 - **Monster Fireballs**: Enemies launch fireballs that deal 10 damage on hit
 - **Defensive Mechanics**: Use firework explosions to destroy incoming fireballs
 - **Scoring System**: Earn points for each monster destroyed
@@ -114,8 +114,8 @@ python voice_fireworks.py
    - **Collision Physics**: Realistic monster-firework interaction
    
 3. **Player Health & Defense**:
-   - **50 HP Starting Health**: Displayed as green health bar at bottom
-   - **10 Damage per Hit**: Monster fireballs deal significant damage
+   - **30 HP Starting Health**: Displayed as green health bar at bottom
+   - **10 Damage per Hit**: Monster fireballs deal significant damage (1/3 of total health)
    - **Defensive Strategy**: Use firework explosions to destroy incoming fireballs
    - **Death & Revival**: Game over at 0 HP, press 'R' to restart with full health
    
@@ -175,6 +175,7 @@ python voice_fireworks.py
   - **Mid Game**: Balance offense and defense as spawn rate increases  
   - **Late Game**: Master rapid-fire techniques for crowd control
   - **Expert Level**: Use fireball interception for advanced defense
+  - **Hardcore Mode**: With only 30 HP, every hit counts - prioritize defense!
 
 ### 📊 Progression & Scoring
 - **Score Multipliers**: Consecutive kills without taking damage boost points
@@ -287,10 +288,10 @@ Edit `voice_fireworks.py` for custom challenge levels:
 self.monster_spawn_timer = 3.0    # Decrease for harder difficulty
 
 # Player health
-self.player_health = 50           # Reduce for hardcore mode  
+self.player_health = 30           # Reduce for hardcore mode  
 
 # Monster damage
-fireball_damage = 10              # Increase for extreme challenge
+fireball_damage = 10              # Increase for extreme challenge (currently 1/3 of health)
 
 # Monster speed range
 speed = random.uniform(0.5, 2.0)  # Increase max for faster monsters
@@ -455,13 +456,15 @@ Have fun creating your own voice-controlled fireworks display! Try different spe
 ---
 
 *Created: October 10, 2025*  
-*Last Updated: October 11, 2025*  
+*Last Updated: October 16, 2025*  
 *Voice-Controlled Fireworks Combat Game - Where Your Voice Becomes Your Weapon!* 🎆⚔️✨
 
-**Version 2.0 Features:**
+**Version 2.1 Features:**
 - ✅ Complete combat system with player health and monster attacks
 - ✅ Advanced AI monster behavior with fireball projectiles  
 - ✅ Defensive mechanics and projectile interception
 - ✅ Comprehensive game mechanics with survival elements
 - ✅ English localization for international accessibility
 - ✅ Professional documentation with advanced strategies
+- 🆕 **Balanced Gameplay**: Reduced player health to 30 HP for increased challenge
+- 🆕 **Enhanced Difficulty**: Each fireball hit now deals 1/3 of total health damage
