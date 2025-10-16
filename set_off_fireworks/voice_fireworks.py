@@ -250,7 +250,7 @@ class Firework:
                     self.particles.remove(particle)
     
     def create_explosion(self):
-        """Create explosion particles"""
+        """Create explosion particles and intercept fireballs"""
         # Generate and play explosion sound
         self.play_explosion_sound()
         
@@ -268,6 +268,26 @@ class Firework:
                 'size': random.uniform(3, 8) * self.size_multiplier
             }
             self.particles.append(particle)
+    
+    def intercept_fireballs(self, fireballs):
+        """Check if this firework explosion can intercept any fireballs"""
+        if not self.exploded:
+            return []
+            
+        intercepted_fireballs = []
+        for fireball in fireballs:
+            if not fireball.alive:
+                continue
+                
+            # Calculate distance from explosion center to fireball
+            distance = math.sqrt((fireball.x - self.target_x)**2 + (fireball.y - self.target_y)**2)
+            
+            # If fireball is within explosion radius, intercept it
+            if distance <= self.explosion_size + fireball.size:
+                intercepted_fireballs.append(fireball)
+                fireball.alive = False
+                
+        return intercepted_fireballs
     
     def play_launch_sound(self):
         """Generate and play launch sound when firework is fired"""
@@ -507,7 +527,7 @@ class VoiceControlledFireworks:
         self.max_monsters = 8  # Maximum monsters on screen
         
         # Player health system
-        self.max_health = 50
+        self.max_health = 30
         self.current_health = self.max_health
         self.player_x = self.width // 2  # Player position (bottom center)
         self.player_y = self.height - 50
@@ -651,15 +671,35 @@ class VoiceControlledFireworks:
                 # Check collision with player
                 if fireball.check_collision_with_player(self.player_x, self.player_y):
                     fireball.alive = False
-                    self.take_damage(1)
-                
-                # Check collision with player fireworks (defense)
-                for firework in self.fireworks:
-                    if fireball.check_collision_with_firework(firework):
-                        fireball.alive = False
-                        break
+                    self.take_damage(10)  # 10 damage per hit
             else:
                 self.fireballs.remove(fireball)
+    
+    def check_firework_interceptions(self):
+        """Check if any exploding fireworks can intercept fireballs"""
+        for firework in self.fireworks:
+            if firework.exploded:
+                # Let this firework try to intercept fireballs
+                intercepted = firework.intercept_fireballs(self.fireballs)
+                if intercepted:
+                    # Add special visual feedback for successful interception
+                    for intercepted_fireball in intercepted:
+                        # Create bright flash particles at interception point
+                        for _ in range(10):
+                            flash_particle = {
+                                'x': intercepted_fireball.x,
+                                'y': intercepted_fireball.y,
+                                'vx': random.uniform(-3, 3),
+                                'vy': random.uniform(-3, 3),
+                                'color': (255, 255, 255),  # White flash
+                                'life': 15,
+                                'size': random.uniform(2, 5)
+                            }
+                            firework.particles.append(flash_particle)
+                    
+                    # Optional: Add score bonus for defensive play
+                    if len(intercepted) > 0:
+                        self.score += len(intercepted)  # Bonus points for interceptions
     
     def take_damage(self, damage):
         """Player takes damage"""
@@ -941,6 +981,7 @@ class VoiceControlledFireworks:
                     self.update_monsters()
                     self.update_fireballs()
                     self.check_monster_collisions()
+                    self.check_firework_interceptions()  # Check firework-fireball interceptions
                 
                 # Draw everything
                 self.update_background()
