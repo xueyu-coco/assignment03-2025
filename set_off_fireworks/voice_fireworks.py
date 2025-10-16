@@ -533,6 +533,10 @@ class VoiceControlledFireworks:
         self.player_y = self.height - 50
         self.game_over = False
         
+        # Damage visual effects
+        self.damage_flash_timer = 0
+        self.last_damage_amount = 0
+        
         # Statistics
         self.total_fireworks = 0
         self.current_volume = 0
@@ -671,7 +675,7 @@ class VoiceControlledFireworks:
                 # Check collision with player
                 if fireball.check_collision_with_player(self.player_x, self.player_y):
                     fireball.alive = False
-                    self.take_damage(10)  # 10 damage per hit
+                    self.take_damage(1)  # 1 damage per hit
             else:
                 self.fireballs.remove(fireball)
     
@@ -703,9 +707,18 @@ class VoiceControlledFireworks:
     
     def take_damage(self, damage):
         """Player takes damage"""
+        old_health = self.current_health
         self.current_health = max(0, self.current_health - damage)
+        
+        # Add visual damage indicator
+        self.damage_flash_timer = 30  # Flash for 30 frames (0.5 seconds at 60 FPS)
+        self.last_damage_amount = damage
+        
         if self.current_health <= 0:
             self.game_over = True
+            
+        # Print damage info to console for verification
+        print(f"💥 DAMAGE: {damage} | {old_health} -> {self.current_health}")
     
     def check_monster_collisions(self):
         """Check if any fireworks hit monsters"""
@@ -728,11 +741,23 @@ class VoiceControlledFireworks:
             fireball.draw(self.screen)
     
     def draw_health_bar(self):
-        """Draw player health bar at bottom of screen"""
+        """Draw player health bar at bottom of screen with damage effects"""
         bar_width = 400
         bar_height = 20
         bar_x = (self.width - bar_width) // 2
         bar_y = self.height - 40
+        
+        # Apply screen flash effect when taking damage
+        flash_alpha = 0
+        if self.damage_flash_timer > 0:
+            flash_alpha = int((self.damage_flash_timer / 30) * 100)  # Fade out over 30 frames
+            self.damage_flash_timer -= 1
+            
+            # Red screen flash
+            flash_surface = pygame.Surface((self.width, self.height))
+            flash_surface.set_alpha(flash_alpha)
+            flash_surface.fill((255, 0, 0))
+            self.screen.blit(flash_surface, (0, 0))
         
         # Background (empty health)
         pygame.draw.rect(self.screen, (100, 0, 0), 
@@ -742,26 +767,39 @@ class VoiceControlledFireworks:
         health_ratio = self.current_health / self.max_health
         current_width = int(bar_width * health_ratio)
         
-        # Color changes based on health level
+        # Color changes based on health level with flash effect
         if health_ratio > 0.6:
-            color = (0, 255, 0)  # Green
+            base_color = (0, 255, 0)  # Green
         elif health_ratio > 0.3:
-            color = (255, 255, 0)  # Yellow
+            base_color = (255, 255, 0)  # Yellow
         else:
-            color = (255, 0, 0)  # Red
+            base_color = (255, 0, 0)  # Red
+            
+        # Add white flash when damaged
+        if self.damage_flash_timer > 15:  # Flash white for first half
+            color = (255, 255, 255)
+        else:
+            color = base_color
             
         if current_width > 0:
             pygame.draw.rect(self.screen, color,
                             (bar_x, bar_y, current_width, bar_height))
         
-        # Border
+        # Border (thicker when damaged)
+        border_width = 4 if self.damage_flash_timer > 0 else 2
         pygame.draw.rect(self.screen, (255, 255, 255),
-                        (bar_x, bar_y, bar_width, bar_height), 2)
+                        (bar_x, bar_y, bar_width, bar_height), border_width)
         
-        # Health text
+        # Health text with damage indicator
         font = pygame.font.Font(None, 24)
         health_text = f"Health: {self.current_health}/{self.max_health}"
-        text_surface = font.render(health_text, True, (255, 255, 255))
+        
+        # Show damage amount when flashing
+        if self.damage_flash_timer > 0 and self.last_damage_amount > 0:
+            health_text += f" (-{self.last_damage_amount})"
+            
+        text_color = (255, 255, 255) if self.damage_flash_timer <= 15 else (255, 255, 0)
+        text_surface = font.render(health_text, True, text_color)
         text_x = bar_x + (bar_width - text_surface.get_width()) // 2
         self.screen.blit(text_surface, (text_x, bar_y - 25))
     

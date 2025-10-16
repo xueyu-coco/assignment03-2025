@@ -1,0 +1,15 @@
+# Voice-Controlled Fireworks Recording Requirements
+# Core game dependencies
+pygame>=2.5.0
+numpy>=1.21.0
+pyaudio>=0.2.11
+
+# Recording and GIF creation dependencies
+opencv-python>=4.5.0
+imageio>=2.22.0
+imageio-ffmpeg>=0.4.7
+Pillow>=9.0.0
+
+# Optional for enhanced recording
+matplotlib>=3.5.0
+scipy>=1.7.0

@@ -502,7 +502,7 @@ Have fun creating your own voice-controlled fireworks display! Try different spe
 *Last Updated: October 16, 2025*  
 *Voice-Controlled Fireworks Combat Game - Where Your Voice Becomes Your Weapon!* 🎆⚔️✨
 
-**Version 2.2 Features:**
+**Version 2.3 Features:**
 - ✅ Complete combat system with player health and monster attacks
 - ✅ Advanced AI monster behavior with fireball projectiles  
 - ✅ Defensive mechanics and projectile interception
@@ -510,8 +510,9 @@ Have fun creating your own voice-controlled fireworks display! Try different spe
 - ✅ English localization for international accessibility
 - ✅ Professional documentation with advanced strategies
 - 🆕 **Balanced Gameplay**: Reduced player health to 30 HP for increased challenge
-- 🆕 **Enhanced Difficulty**: Each fireball hit now deals 1/3 of total health damage
+- 🆕 **Optimized Damage**: Each fireball hit now deals 1 point damage (30-hit challenge)
 - 🔥 **Precision Interception System**: Active fireball detection and destruction
 - 🔥 **Strategic Defense**: Skill-based fireball blocking with timing and positioning
 - 🔥 **Visual Feedback**: White flash effects for successful interceptions
 - 🔥 **Bonus Scoring**: Extra points for defensive mastery
+- 🎯 **Extended Gameplay**: 1-point damage system allows for longer, more strategic sessions
