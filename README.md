@@ -305,375 +305,6 @@ python record_gameplay.py
 
 ---
 
-### 1. Main Image Generator (`streamlit_image_generator.py`)
-
-## 🌟 Project HighlightsThe primary application featuring:
-
-- Intuitive web interface
-
-### 🔬 Technical Innovation- Real-time image generation
-
-- **Multi-modal AI**: Combining text, image, and voice interactions- Download functionality
-
-- **Local AI Integration**: LMStudio for privacy-focused AI hosting- Preset prompts for quick start
-
-- **Advanced UI/UX**: Custom Streamlit interfaces with enhanced styling- Advanced parameter controls
-
-- **GPU Optimization**: CUDA acceleration for high-performance image generation
-
-**Usage:**
-
-### 🎓 Learning Outcomes```bash
-
-- **AI Integration**: Practical experience with modern AI APIs and modelsstreamlit run streamlit_image_generator.py
-
-- **Web Development**: Building interactive applications with Streamlit```
-
-- **Image Processing**: Advanced computer vision and image manipulation
-
-- **Memory Systems**: Implementing persistent AI memory and context### 2. Integrated Creative Studio (`integrated_ai_app.py`)
-
-- **Multi-language Support**: Creating accessible, international applicationsA comprehensive toolkit with:
-
-- Multiple generation modes
-
-### 🚀 Practical Applications- Video processing capabilities
-
-- **Business**: Content creation, marketing materials, customer engagement- Multi-language interface
-
-- **Education**: Interactive learning tools and educational content- Advanced image controls
-
-- **Entertainment**: Games, creative tools, and interactive experiences
-
-- **Research**: AI experimentation and prototype development**Usage:**
-
-```bash
-
----streamlit run integrated_ai_app.py
-
-```
-
-## 📋 System Requirements
-
-### 3. Specialized Generators
-
-### Minimum Requirements- **Cartoon Dog Generator**: Create cute cartoon-style dog images
-
-- **OS**: Windows 10/11, macOS 10.14+, or Linux- **Teddy Generator**: Generate adorable teddy bear images
-
-- **Python**: 3.8 or higher- **ControlNet**: Precise image control using edge detection
-
-- **RAM**: 8GB minimum (16GB recommended)
-
-- **Storage**: 15GB free space for models and dependencies### 4. Video Processing
-
-Real-time video effects and filters for webcam or video files.
-
-### Recommended for Optimal Performance
-
-- **GPU**: NVIDIA RTX 3060 or better with 8GB+ VRAM## 🛠️ Configuration
-
-- **RAM**: 16GB or higher
-
-- **Storage**: SSD with 20GB+ free space### GPU Setup
-
-- **CUDA**: Toolkit installed for GPU accelerationThe application automatically detects and uses GPU acceleration when available. For optimal performance:
-
-
-
----1. Install CUDA toolkit
-
-2. Use the CUDA-optimized requirements:
-
-## 🚀 Getting Started   ```bash
-
-   pip install -r cuda_torch_requirements.txt
-
-### 1. Clone the Repository   ```
-
-```bash
-
-git clone https://github.com/xueyu-coco/assignment03-2025.git### Model Configuration
-
-cd assignment03-2025The project uses Stable Diffusion v1.5 by default. Models are automatically downloaded on first use and cached for future sessions.
-
-```
-
-## 📖 Usage Examples
-
-### 2. Choose Your Project
-
-### Basic Text-to-Image Generation
-
-#### For Lucky AI (Week 04):```python
-
-```bashfrom diffusers import DiffusionPipeline
-
-cd week04-LUCKY_AIimport torch
-
-pip install -r requirements.txt
-
-# Start LMStudio with compatible model# Load the pipeline
-
-streamlit run lmstudio_chatbot.pypipe = DiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
-
-```
-
-# Generate an image
-
-#### For AI Image Generator (Week 05):prompt = "a beautiful landscape with mountains, golden hour lighting"
-
-```bashimage = pipe(prompt).images[0]
-
-cd week05-AI_IMAGE_GENERATORimage.save("generated_image.png")
-
-pip install -r requirements.txt```
-
-streamlit run streamlit_image_generator.py
-
-```### Using the Cartoon Dog Generator
-
-```python
-
-### 3. Access Applicationsfrom cartoon_dog_generator import CartoonDogGenerator
-
-- Open your browser to `http://localhost:8501`
-
-- Start exploring the AI applications!generator = CartoonDogGenerator()
-
-image = generator.generate_cartoon_dog("brown fluffy puppy playing in grass")
-
----```
-
-
-
-## 📚 Documentation## 🎨 Prompt Engineering Tips
-
-
-
-### Project Documentation### Effective Prompts
-
-- [Week 04 - Lucky AI README](./week04-LUCKY_AI/README.md) - Detailed setup and usage guide- **Be specific**: Use detailed descriptions instead of vague terms
-
-- [Week 05 - AI Image Generator README](./week05-AI_IMAGE_GENERATOR/README.md) - Comprehensive feature documentation- **Include style**: Specify art styles like "oil painting", "cartoon style", "photorealistic"
-
-- **Add quality modifiers**: Use terms like "high quality", "detailed", "professional"
-
-### Learning Resources- **Describe lighting**: Include lighting conditions like "soft lighting", "golden hour", "dramatic shadows"
-
-- **Streamlit Documentation**: [docs.streamlit.io](https://docs.streamlit.io/)
-
-- **Stable Diffusion Guide**: [huggingface.co/docs/diffusers](https://huggingface.co/docs/diffusers)### Example Prompts
-
-- **LMStudio Setup**: Local AI model hosting and configuration- **Landscape**: "serene mountain lake at sunset, golden hour lighting, reflection in water, detailed, cinematic"
-
-- **OpenAI API**: Compatible API integration patterns- **Portrait**: "portrait of a wise old wizard, detailed face, magical atmosphere, fantasy art style"
-
-- **Animal**: "cute red panda sitting on bamboo, fluffy fur, adorable expression, soft lighting"
-
----
-
-### Negative Prompts
-
-## 🔧 TroubleshootingUse negative prompts to avoid unwanted elements:
-
-- "blurry, low quality, distorted, ugly, poorly drawn"
-
-### Common Issues- "extra limbs, deformed, mutated, bad anatomy"
-
-
-
-#### Week 04 (Lucky AI)## 🔧 Technical Details
-
-- **LMStudio Connection**: Ensure server is running on port 1234
-
-- **Memory Issues**: Clear browser cache and restart application### Dependencies
-
-- **Model Loading**: Verify compatible AI model is loaded in LMStudio- **Streamlit**: Web interface framework
-
-- **Diffusers**: Hugging Face diffusion models
-
-#### Week 05 (Image Generator)- **Transformers**: Natural language processing
-
-- **GPU Detection**: Install CUDA toolkit for GPU acceleration- **OpenCV**: Computer vision and image processing
-
-- **Model Downloads**: Ensure stable internet for initial model downloads- **PIL/Pillow**: Image manipulation
-
-- **Memory Errors**: Reduce image resolution or inference steps- **PyTorch**: Deep learning framework
-
-- **Slow Generation**: Enable GPU acceleration or use LCM models
-
-### System Requirements
-
-### Performance Optimization- **Minimum**: 8GB RAM, Intel i5 or equivalent
-
-- **GPU Setup**: Install appropriate CUDA toolkit version- **Recommended**: 16GB+ RAM, NVIDIA RTX 3060 or better
-
-- **Memory Management**: Close unnecessary applications during AI operations- **Storage**: 10GB+ free space for models
-
-- **Model Caching**: Allow time for initial model downloads and caching
-
-- **Network**: Stable internet connection for model downloads### Performance Optimization
-
-- **GPU Memory**: Adjust batch size based on available VRAM
-
----- **CPU Mode**: Increase swap file size for CPU-only systems
-
-- **Model Caching**: Models are cached locally after first download
-
-## 🤝 Contributing
-
-## 🐛 Troubleshooting
-
-We welcome contributions to improve these AI applications! Here's how you can help:
-
-### Common Issues
-
-### Ways to Contribute
-
-1. **Bug Reports**: Report issues with detailed reproduction steps1. **Out of Memory Error**
-
-2. **Feature Requests**: Suggest new features or improvements   - Reduce image resolution
-
-3. **Code Contributions**: Submit pull requests with enhancements   - Lower the number of inference steps
-
-4. **Documentation**: Improve guides and documentation   - Close other GPU-intensive applications
-
-5. **Testing**: Help test new features and report feedback
-
-2. **Model Download Issues**
-
-### Development Guidelines   - Check internet connection
-
-1. Fork the repository   - Ensure sufficient disk space
-
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)   - Try running with administrator privileges
-
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-
-4. Push to the branch (`git push origin feature/amazing-feature`)3. **CUDA Not Found**
-
-5. Open a Pull Request   - Install appropriate CUDA toolkit version
-
-   - Verify PyTorch CUDA installation: `torch.cuda.is_available()`
-
----
-
-4. **Slow Generation**
-   - Enable GPU acceleration
-   - Reduce inference steps for faster generation
-   - Use LCM models for rapid prototyping
-
-## 📚 Learning Resources
-
-### Notebooks
-- `week05_notebook.ipynb`: Comprehensive tutorial on AI image generation
-- `python_classes_tutorial.ipynb`: Python programming fundamentals
-
-### Documentation
-- [Stable Diffusion Documentation](https://huggingface.co/docs/diffusers)
-- [Streamlit Documentation](https://docs.streamlit.io/)
-- [PyTorch Documentation](https://pytorch.org/docs/)
-
-## 🏆 Project Statistics
-
-### Week 04 - Lucky AI
-- **Lines of Code**: ~800+ lines
-- **Features**: 6 major components
-- **AI Personalities**: 5 different assistants
-- **Memory System**: Advanced context retention
-
-### Week 05 - AI Image Generator
-- **Lines of Code**: ~2,600+ lines
-- **Applications**: 8 different interfaces
-- **AI Models**: Multiple Stable Diffusion variants
-- **Image Types**: Unlimited creative possibilities
-
-### Week 06 - Music Dance Visualizer
-- **Lines of Code**: ~1,500+ lines
-- **Dance Styles**: 7 unique dancer types
-- **Audio Features**: Real-time spectrum analysis
-- **Voice Control**: Speech recognition and voice response
-
-### Week 06 - Voice-Controlled Fireworks
-- **Lines of Code**: ~990+ lines
-- **Game Modes**: 2 distinct gameplay experiences
-- **Combat System**: Complete health and attack mechanics
-- **Audio Processing**: Ultra-sensitive voice detection
-
-### Combined Project
-- **Total Files**: 60+ Python files
-- **Dependencies**: 25+ AI/ML libraries
-- **Supported Languages**: English and Chinese
-- **Platform Support**: Cross-platform compatibility
-
-- **Total Files**: 40+ Python files## 🤝 Contributing
-
-- **Dependencies**: 20+ AI/ML libraries
-
-- **Supported Languages**: English and ChineseWe welcome contributions! Please feel free to:
-
-- **Platform Support**: Cross-platform compatibility- Report bugs and issues
-
-- Suggest new features
-
----- Submit pull requests
-
-- Improve documentation
-
-## 📄 License
-
-## 📄 License
-
-This project is open-source and available under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-This project is open-source and available under the MIT License.
-
----
-
-## 🙏 Acknowledgments
-
-## 🙏 Acknowledgments
-
-- Hugging Face for the Diffusers library
-
-### Technologies Used- Stability AI for Stable Diffusion
-
-## 🙏 Acknowledgments
-
-### Technologies Used
-- **Streamlit**: Amazing web framework for AI applications
-- **Hugging Face**: Diffusers library and model hosting
-- **Stability AI**: Stable Diffusion models
-- **LMStudio**: Local AI model hosting platform
-- **OpenAI**: API compatibility and standards
-- **Pygame**: Graphics and audio processing for interactive applications
-- **Librosa**: Advanced audio analysis and music processing
-
-### Inspiration
-- **AI Community**: Open-source AI development community
-- **Educational Resources**: AI programming course materials
-- **User Feedback**: Continuous improvement based on user needs
-
-## 🔮 Future Plans
-
-- [ ] Support for more AI models (DALL-E, Midjourney-style)
-- [ ] Advanced editing capabilities
-- [ ] Batch generation features
-- [ ] Custom model training interface
-- [ ] API endpoints for integration
-- [ ] Mobile-responsive design improvements
-- [ ] VR/AR integration for audio-visual projects
-- [ ] Multiplayer features for interactive applications
-
----
-
-**Happy Creating! 🎨✨**
-
-For questions or support, please open an issue or contact the development team.
-
----
-
 ## 🌟 Project Highlights Summary
 
 This comprehensive AI programming collection demonstrates the evolution from conversational AI to creative visual generation, and finally to immersive audio-visual interactive experiences:
@@ -695,24 +326,89 @@ This comprehensive AI programming collection demonstrates the evolution from con
 - **Audio-Visual Programming**: Combining multiple media streams for immersive experiences
 - **Game Development**: Creating interactive entertainment with physics and AI
 
-**Explore the fascinating world of AI through interactive chatbots, creative image generation, and immersive audio-visual experiences!** 🚀
+## 📋 System Requirements
 
----
+### Minimum Requirements
+- **OS**: Windows 10/11, macOS 10.14+, or Linux
+- **Python**: 3.8 or higher
+- **RAM**: 8GB minimum (16GB recommended)
+- **Storage**: 15GB free space for models and dependencies
 
-*Last updated: October 11, 2025*
+### Recommended for Optimal Performance
+- **GPU**: NVIDIA RTX 3060 or better with 8GB+ VRAM
+- **RAM**: 16GB or higher
+- **Storage**: SSD with 20GB+ free space
+- **CUDA**: Toolkit installed for GPU acceleration
 
-### 📞 Support & Contact
+## 🚀 Quick Setup Guide
 
+### 1. Clone Repository
+```bash
+git clone https://github.com/xueyu-coco/assignment03-2025.git
+cd assignment03-2025
+```
+
+### 2. Choose Your Project
+Navigate to any project directory and follow the specific setup instructions:
+- **Lucky AI (Week 04)**: `cd week04-LUCKY_AI`
+- **AI Image Generator (Week 05)**: `cd week05-AI_IMAGE_GENERATOR`
+- **Music Dance Visualizer (Week 06)**: `cd week06_audio_project/music_dance`
+- **Voice Fireworks (Week 06)**: `cd set_off_fireworks`
+
+### 3. Install and Run
+Each project has detailed installation and running instructions in its respective section above.
+
+## 🔧 Common Troubleshooting
+
+### Installation Issues
+- **Python Version**: Ensure Python 3.8+ is installed
+- **Virtual Environment**: Use virtual environments to avoid conflicts
+- **GPU Support**: Install CUDA toolkit for GPU acceleration
+- **Dependencies**: Install project-specific requirements files
+
+### Runtime Issues
+- **Memory Errors**: Reduce image resolution or close other applications
+- **Model Downloads**: Ensure stable internet for initial model downloads
+- **Audio Issues**: Check microphone permissions and audio device settings
+
+## 🏆 Project Statistics
+
+### Combined Project Metrics
+- **Total Files**: 60+ Python files across all projects
+- **Lines of Code**: 5,000+ lines of AI-powered functionality
+- **Dependencies**: 25+ AI/ML libraries and frameworks
+- **Supported Languages**: English and Chinese interfaces
+- **Platform Support**: Cross-platform compatibility (Windows, macOS, Linux)
+
+## 🤝 Contributing
+
+We welcome contributions! Feel free to:
+- Report bugs and issues
+- Suggest new features
+- Submit pull requests
+- Improve documentation
+
+## 📄 License
+
+This project is open-source and available under the MIT License.
+
+## 🙏 Acknowledgments
+
+### Technologies Used
+- **Streamlit**: Web framework for AI applications
+- **Hugging Face**: Diffusers library and model hosting
+- **Stability AI**: Stable Diffusion models
+- **LMStudio**: Local AI model hosting platform
+- **OpenAI**: API compatibility and standards
+- **Pygame**: Graphics and audio processing
+- **Librosa**: Advanced audio analysis and music processing
+
+### Support & Contact
 For questions, issues, or contributions:
-1. **Check Documentation**: Review individual project README files for detailed setup instructions
-2. **Common Issues**: Check troubleshooting sections in each project
-3. **GitHub Issues**: Create an issue for bugs or feature requests
-4. **Community Support**: Engage with the AI development community
-
-### 📋 Course Information
-- **Institution**: AI Programming Course
-- **Assignment**: Assignment 03 - 2025
-- **Repository**: [assignment03-2025](https://github.com/xueyu-coco/assignment03-2025)
+1. Review individual project README files for detailed setup instructions
+2. Check troubleshooting sections in each project
+3. Create GitHub issues for bugs or feature requests
+4. Engage with the AI development community
 
 ---
 
@@ -720,4 +416,4 @@ For questions, issues, or contributions:
 
 *Explore the fascinating world of AI through interactive chatbots, creative image generation, and immersive audio-visual experiences. These projects demonstrate the practical applications of modern AI technologies in engaging, user-friendly applications.*
 
-*Last updated: October 2, 2025*
+*Last updated: October 21, 2025*
