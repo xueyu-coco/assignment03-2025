@@ -10,8 +10,8 @@ An interactive AI chatbot application featuring tarot card readings, horoscope p
 ### 🎨 [Week 05: AI Creative Studio](./week05-AI_IMAGE_GENERATOR/)
 A comprehensive AI-powered creative toolkit built with Stable Diffusion, featuring image generation, real-time video processing, and face detection with dynamic AI overlays.
 
-### 🎵 [Week 06: Music Dance Visualizer](./Let's%20dance%20together!/)
-An AI-powered music visualization and dance system with real-time audio analysis, multiple dance styles, and interactive voice control features.
+### 🎵 [Week 06: Let's dance together!](./Let's%20dance%20together!/)
+An AI-powered music visualization and dance system featuring 7 unique dance styles, real-time audio analysis, dynamic particle effects, and interactive voice control. Experience the fusion of AI, music, and interactive visual art through synchronized dance performances.
 
 ### 🎆 [Week 06: Voice-Controlled Fireworks](./set_off_fireworks/)
 An immersive voice-controlled fireworks display with New Year Monster Hunt combat mode, featuring real-time audio processing and spectacular visual effects.
@@ -147,7 +147,7 @@ streamlit run combined_creative_studio.py
 
 ---
 
-## 🎵 Week 06: Music Dance Visualizer
+## 🎵 Week 06: Let's dance together!
 
 ### ✨ Key Features
 - **🎭 Multiple Dance Styles**: 7 unique dancer types (Human, Abstract, Robot, Hip-Hop, Ballet, Cartoon, Animal)
@@ -311,7 +311,7 @@ This comprehensive AI programming collection demonstrates the evolution from con
 
 - **🍀 Week 04**: Advanced chatbot systems with memory and personality
 - **🎨 Week 05**: AI-powered creative tools with real-time image generation
-- **🎵 Week 06**: Interactive audio-visual applications combining music, voice, and graphics
+- **🎵 Week 06**: Interactive audio-visual applications - "Let's dance together!" music visualization and voice-controlled fireworks
 - **🎆 Week 06**: Gaming experiences with voice control and real-time audio processing
 
 ### 🔬 Technical Evolution
@@ -352,7 +352,7 @@ cd assignment03-2025
 Navigate to any project directory and follow the specific setup instructions:
 - **Lucky AI (Week 04)**: `cd week04-LUCKY_AI`
 - **AI Image Generator (Week 05)**: `cd week05-AI_IMAGE_GENERATOR`
-- **Music Dance Visualizer (Week 06)**: `cd "Let's dance together!"`
+- **Let's dance together! (Week 06)**: `cd "Let's dance together!"`
 - **Voice Fireworks (Week 06)**: `cd set_off_fireworks`
 
 ### 3. Install and Run
