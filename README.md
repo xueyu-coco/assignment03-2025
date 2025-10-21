@@ -10,7 +10,7 @@ An interactive AI chatbot application featuring tarot card readings, horoscope p
 ### 🎨 [Week 05: AI Creative Studio](./week05-AI_IMAGE_GENERATOR/)
 A comprehensive AI-powered creative toolkit built with Stable Diffusion, featuring image generation, real-time video processing, and face detection with dynamic AI overlays.
 
-### 🎵 [Week 06: Music Dance Visualizer](./music_dance/)
+### 🎵 [Week 06: Music Dance Visualizer](./Let's%20dance%20together!/)
 An AI-powered music visualization and dance system with real-time audio analysis, multiple dance styles, and interactive voice control features.
 
 ### 🎆 [Week 06: Voice-Controlled Fireworks](./set_off_fireworks/)
@@ -168,7 +168,7 @@ streamlit run combined_creative_studio.py
 ### 🚀 How to Run
 ```bash
 # Navigate to project directory
-cd music_dance
+cd "Let's dance together!"
 
 # Install audio processing dependencies
 pip install pygame librosa numpy scipy soundfile pyaudio
@@ -352,7 +352,7 @@ cd assignment03-2025
 Navigate to any project directory and follow the specific setup instructions:
 - **Lucky AI (Week 04)**: `cd week04-LUCKY_AI`
 - **AI Image Generator (Week 05)**: `cd week05-AI_IMAGE_GENERATOR`
-- **Music Dance Visualizer (Week 06)**: `cd week06_audio_project/music_dance`
+- **Music Dance Visualizer (Week 06)**: `cd "Let's dance together!"`
 - **Voice Fireworks (Week 06)**: `cd set_off_fireworks`
 
 ### 3. Install and Run
