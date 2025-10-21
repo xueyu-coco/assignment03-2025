@@ -22,29 +22,59 @@ An immersive voice-controlled fireworks display with New Year Monster Hunt comba
 
 ### ✨ Key Features
 - **🔮 Interactive Tarot Reading**: 22 Major Arcana cards with detailed interpretations
-- **⭐ Daily Horoscope**: Complete zodiac predictions for all 12 signs
+- **⭐ Daily Horoscope**: Complete zodiac predictions for all 12 signs  
 - **🧠 Advanced Memory System**: Remembers user information across sessions
-- **🎭 Multiple AI Personalities**: Programming tutor, creative writer, life coach, and more
+- **🎭 Multiple AI Personalities**: Programming tutor, creative writer, life coach, study buddy, travel guide
 - **🎤 Voice Input Interface**: Simulated voice-to-text functionality
-- **🎨 Enhanced UI**: Typewriter effects and modern design
+- **🎨 Enhanced UI**: Typewriter effects, custom CSS styling, responsive design
 
 ### 🛠️ Technical Stack
-- **Framework**: Streamlit web application
-- **AI Backend**: LMStudio with local AI model hosting
-- **API**: OpenAI-compatible interface
-- **Features**: Session state management, custom CSS styling
+- **Framework**: Streamlit web application with custom styling
+- **AI Backend**: LMStudio with local AI model hosting (OpenAI-compatible)
+- **Models**: Meta-Llama-3-8B-Instruct-GGUF or compatible models
+- **Features**: Session state management, regex-based memory extraction
 
-### 🚀 Quick Start
+### 🚀 How to Run
 ```bash
+# Navigate to project directory
 cd week04-LUCKY_AI
-pip install -r requirements.txt
+
+# Install dependencies
+pip install streamlit openai pandas numpy ollama
+
+# Start LMStudio with a compatible model on port 1234
+# OR start Ollama service: ollama serve
+
+# Launch the application
 streamlit run lmstudio_chatbot.py
+
+# Access at http://localhost:8501
 ```
 
-### 🎯 Use Cases
-- **Entertainment**: Interactive fortune-telling games
-- **Personal Assistant**: AI chat with memory capabilities
-- **Educational**: Multiple AI personalities for different learning needs
+### 🎯 How to Interact
+**Basic Chat**: Simply type messages in the input field
+- Switch AI personalities using the sidebar dropdown
+- Share personal information for AI to remember ("My name is John, I'm 25...")
+
+**Tarot Reading**: 
+- Type: `"tarot reading"`, `"draw tarot cards"`, or `"塔罗牌抽签"`
+- Click on any of the 18 displayed mystical cards
+- Receive detailed interpretation with spiritual guidance
+
+**Horoscope Consultation**:
+- Type: `"horoscope"`, `"zodiac"`, or `"daily fortune"`
+- Select your zodiac sign from the 12 visual options
+- Get comprehensive daily predictions for love, career, finance, health
+
+**Memory Features**:
+- View remembered details in the "🧠 Memory" sidebar section
+- AI extracts and stores personal information automatically
+- Clear memory using the "🧹 Clear Memory" button
+
+### 💡 Use Cases
+- **Entertainment**: Interactive fortune-telling and mystical guidance
+- **Personal Assistant**: Multi-personality AI with persistent memory
+- **Educational**: Programming help, creative writing, life coaching
 - **Conversational AI**: Advanced chatbot with context awareness
 
 ---
@@ -52,31 +82,67 @@ streamlit run lmstudio_chatbot.py
 ## 🎨 Week 05: AI Creative Studio
 
 ### ✨ Key Features
-- **🖼️ AI Image Generation**: Transform text descriptions into stunning images
+- **🖼️ Text-to-Image Generation**: Transform descriptions into stunning artwork
 - **📹 Real-time Video Processing**: Live face detection with AI-generated overlays
-- **� Combined Creative Studio**: Integrated interface for all features
-- **🐕 Specialized Generators**: Cartoon animals, teddy bears, and custom themes
-- **🎛️ Advanced Controls**: ControlNet, LCM models, and parameter tuning
-- **🌍 Multi-language Support**: Bilingual interface with full localization
+- **🎨 Multiple Generation Modes**: Basic generator, ControlNet, LCM models
+- **🐕 Specialized Generators**: Cartoon animals, teddy bears, custom themes
+- **🎛️ Advanced Controls**: Parameter tuning, negative prompts, batch generation
+- **🌍 Multi-language Support**: English/Chinese interface with full localization
+- **💾 Export Features**: Save images, download functionality, batch processing
 
 ### 🛠️ Technical Stack
-- **Framework**: Streamlit web applications with WebRTC
-- **AI Models**: Stable Diffusion v1.5, ControlNet, LCM
-- **Libraries**: Diffusers, Transformers, OpenCV, PIL
-- **Hardware**: GPU acceleration with CUDA support
+- **Framework**: Streamlit with WebRTC for video processing
+- **AI Models**: Stable Diffusion v1.5, ControlNet, LCM (Latent Consistency Models)
+- **Libraries**: Diffusers, Transformers, OpenCV, PIL, PyTorch
+- **Hardware**: GPU acceleration with CUDA support (8GB+ VRAM recommended)
 
-### 🚀 Quick Start
+### 🚀 How to Run
 ```bash
+# Navigate to project directory
 cd week05-AI_IMAGE_GENERATOR
-pip install -r requirements.txt
+
+# Install dependencies (choose based on hardware)
+pip install -r requirements.txt  # CPU version
+# OR
+pip install -r cuda_torch_requirements.txt  # GPU accelerated
+
+# Launch main application
+streamlit run streamlit_image_generator.py
+# OR integrated studio
 streamlit run combined_creative_studio.py
+
+# Access at http://localhost:8501
 ```
 
-### 🎯 Use Cases
-- **Creative Content**: Generate artwork, illustrations, and designs
-- **Real-time Effects**: Apply AI-generated images to live video
-- **Prototyping**: Quick visual concept development
-- **Education**: Learn AI image generation techniques
+### 🎯 How to Interact
+**Text-to-Image Generation**:
+- Enter descriptive prompts: `"a beautiful sunset over mountains, oil painting style"`
+- Adjust parameters: image size, inference steps, guidance scale
+- Use negative prompts to avoid unwanted elements
+- Download generated images instantly
+
+**Real-time Video Effects**:
+- Enable webcam for live video processing
+- Apply AI-generated overlays to detected faces
+- Switch between different effect styles
+- Record enhanced video output
+
+**Specialized Generators**:
+- **Cartoon Dog Generator**: `"brown fluffy puppy playing in grass"`
+- **Teddy Bear Creator**: `"cute teddy bear with bow tie, soft lighting"`
+- **ControlNet Mode**: Upload reference images for precise control
+
+**Advanced Features**:
+- Batch generation for multiple images
+- Custom model loading and configuration
+- Parameter presets for different art styles
+- Multi-language interface switching
+
+### 💡 Use Cases
+- **Creative Content**: Generate artwork, illustrations, marketing materials
+- **Real-time Effects**: Interactive video calls with AI-enhanced backgrounds
+- **Prototyping**: Quick visual concept development for projects
+- **Education**: Learn AI image generation and computer vision techniques
 - **Entertainment**: Create custom images and interactive video effects
 
 ---
@@ -88,58 +154,154 @@ streamlit run combined_creative_studio.py
 - **🎨 Real-time Audio Visualization**: Dynamic particle systems and spectrum analysis
 - **🎤 Voice Control**: Speech recognition and real-time voice response systems
 - **🎵 Music Synchronization**: Advanced beat detection and tempo analysis
-- **🌈 Dynamic Effects**: Particle systems, lighting effects, and mood-responsive backgrounds
+- **🌈 Dynamic Effects**: Particle systems, lighting effects, mood-responsive backgrounds
 - **🎮 Interactive Controls**: Real-time tempo adjustment and dance style switching
+- **🔊 Audio Processing**: Librosa-based feature extraction and frequency analysis
 
 ### 🛠️ Technical Stack
 - **Framework**: Pygame for graphics and audio processing
-- **Audio Analysis**: Librosa for music feature extraction
+- **Audio Analysis**: Librosa for music feature extraction and beat detection
 - **Voice Processing**: Real-time microphone input with speech recognition
-- **Visual Effects**: Custom particle systems and dynamic lighting
+- **Visual Effects**: Custom particle systems, dynamic lighting, and OpenGL acceleration
+- **AI Components**: Machine learning for dance pattern generation
 
-### 🚀 Quick Start
+### 🚀 How to Run
 ```bash
+# Navigate to project directory
 cd week06_audio_project/music_dance
+
+# Install audio processing dependencies
+pip install pygame librosa numpy scipy soundfile pyaudio
+
+# Install additional requirements
 pip install -r requirements_dance.txt
+
+# Launch the enhanced visualizer
 python enhanced_dance_visualizer.py
+
+# Alternative: Run basic version
+python music_dance_visualizer.py
 ```
 
-### 🎯 Use Cases
-- **Entertainment**: Interactive music visualization and dance performances
+### 🎯 How to Interact
+**Music Loading**:
+- Load audio files: MP3, WAV, FLAC formats supported
+- Use built-in sample tracks for instant demo
+- Real-time microphone input for live music analysis
+
+**Dance Style Selection**:
+- Press `1-7` keys to switch between dancer types:
+  - `1`: Human dancer with realistic movements
+  - `2`: Abstract geometric patterns
+  - `3`: Robot with mechanical motion
+  - `4`: Hip-Hop with street dance moves
+  - `5`: Ballet with graceful movements
+  - `6`: Cartoon with playful animation
+  - `7`: Animal movements (cat, bird, etc.)
+
+**Voice Control**:
+- Say `"change style"` to cycle through dancers
+- Say `"faster"` or `"slower"` to adjust tempo
+- Say `"more energy"` to increase visual intensity
+- Say `"pause"` or `"play"` to control playback
+
+**Visual Controls**:
+- `SPACE`: Pause/resume music
+- `UP/DOWN`: Adjust volume
+- `LEFT/RIGHT`: Seek through track
+- `R`: Reset visualizer
+- `F`: Toggle fullscreen mode
+
+**Interactive Features**:
+- Click and drag to influence particle movements
+- Mouse position affects lighting and color schemes
+- Keyboard input creates rhythm-synced effects
+
+### 💡 Use Cases
+- **Entertainment**: Interactive music visualization for parties and events
 - **Education**: Music theory demonstration and rhythm training
 - **Creative Arts**: Visual music performance and artistic expression
-- **Voice Interaction**: Hands-free control and voice-responsive entertainment
+- **Accessibility**: Voice-controlled music interface for hands-free operation
+- **Therapy**: Relaxing visual feedback for music meditation
 
 ---
 
 ## 🎆 Week 06: Voice-Controlled Fireworks
 
 ### ✨ Key Features
-- **� Voice-Reactive Fireworks**: Launch fireworks using voice volume and intensity
-- **👹 Monster Hunt Combat Mode**: New Year themed survival game with monster battles
-- **⚔️ Complete Combat System**: Player health, monster fireballs, and defensive mechanics
+- **🎤 Voice-Reactive Fireworks**: Launch fireworks using voice volume and intensity
+- **👹 Monster Hunt Combat Mode**: New Year themed survival game with AI monsters
+- **⚔️ Complete Combat System**: Player health (30 HP), monster fireballs, defensive mechanics
+- **🎯 Precision Fireball Interception**: Skill-based projectile blocking system
 - **🔊 Dynamic Sound Effects**: Realistic launch and explosion audio with size-based variations
-- **�🎮 Dual Game Modes**: Peaceful fireworks display and intense combat survival
-- **🌟 Spectacular Visual Effects**: Particle physics, multiple colors, and realistic explosions
+- **🎮 Dual Game Modes**: Peaceful fireworks display and intense combat survival
+- **🌟 Spectacular Visual Effects**: Particle physics, multiple colors, realistic explosions
+- **📊 Real-time Statistics**: Score tracking, health monitoring, monster counts
 
 ### 🛠️ Technical Stack
 - **Framework**: Pygame for graphics and PyAudio for real-time voice processing
-- **Audio Processing**: Ultra-sensitive voice detection with advanced signal amplification
+- **Audio Processing**: Ultra-sensitive voice detection with 3x signal amplification
 - **Game Engine**: Custom physics simulation with collision detection
 - **Sound Generation**: Procedural audio synthesis for realistic firework sounds
+- **AI Systems**: Monster behavior patterns and intelligent spawning
 
-### 🚀 Quick Start
+### 🚀 How to Run
 ```bash
+# Navigate to project directory
 cd set_off_fireworks
+
+# Install dependencies
+pip install pygame pyaudio numpy imageio pillow
+
+# Install all requirements
 pip install -r requirements.txt
+
+# Launch the voice-controlled fireworks game
 python voice_fireworks.py
+
+# Alternative: Create gameplay recording
+python record_gameplay.py
 ```
 
-### 🎯 Use Cases
+### 🎯 How to Interact
+**Voice Control**:
+- **Speak into microphone**: Voice volume determines firework size and power
+- **Louder voice = Bigger explosions**: Scale effects with voice intensity
+- **Continuous speech**: Rapid-fire fireworks with 150ms cooldown
+- **Whisper**: Small, delicate fireworks
+- **Shout**: Massive explosions with wide blast radius
+
+**Game Mode Switching**:
+- **Press `M`**: Toggle between Normal and Monster Hunt modes
+- **Normal Mode**: Peaceful fireworks display for celebration
+- **Monster Hunt**: Survival combat with voice-controlled weapons
+
+**Monster Hunt Combat**:
+- **Objective**: Survive as long as possible (30 HP starting health)
+- **Enemy Monsters**: AI-driven creatures with glowing red eyes
+- **Monster Attacks**: Fireballs that deal 1 damage per hit
+- **Defense Strategy**: Use voice to create firework explosions that intercept fireballs
+- **Precision Timing**: Place explosions in fireball paths to block attacks
+- **Scoring**: Earn points for monsters destroyed + bonus for fireball interceptions
+
+**Combat Controls**:
+- **Voice Volume**: Controls firework placement and explosion size
+- **Strategic Positioning**: Aim voice-controlled explosions at incoming threats
+- **Health Management**: Monitor health bar and damage indicators
+- **Game Over**: Press `R` to restart when health reaches zero
+
+**Additional Controls**:
+- **ESC**: Exit application
+- **Mouse Movement**: Affects firework launch direction
+- **Visual Feedback**: Screen flashes and health bar changes show damage
+
+### 💡 Use Cases
 - **Entertainment**: Voice-controlled celebration and interactive gaming
 - **Party Activities**: Group entertainment with voice-based fireworks launching
-- **Gaming**: Survival combat with voice-controlled weapons
+- **Gaming**: Survival combat with innovative voice-controlled weapons
 - **Audio Technology**: Real-time voice processing and audio-visual synchronization
+- **Accessibility**: Voice-only control for hands-free gaming experience
+- **Educational**: Demonstrates voice signal processing and game physics
 
 ---
 
