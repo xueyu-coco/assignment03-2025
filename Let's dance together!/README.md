@@ -1,4 +1,4 @@
-# Music Dance Visualizer 🎵🕺
+# Let's dance together! 🎵🕺
 
 An AI-powered music visualization and dance system that creates interactive, real-time dance performances synchronized with music and voice input. Experience multiple dance styles with dynamic visual effects that respond to audio analysis and voice commands.
 
@@ -28,7 +28,7 @@ An AI-powered music visualization and dance system that creates interactive, rea
 ## � How to Run
 
 ### Quick Setup
-1. **Navigate to the music_dance directory**
+1. **Navigate to the "Let's dance together!" directory**
 2. **Install dependencies**:
    ```bash
    pip install -r requirements_dance.txt
@@ -99,7 +99,7 @@ For enhanced voice interaction, run the voice control modules from the parent di
 ## 🎵 Music and Audio Setup
 
 ### Adding Your Music
-1. Place MP3, WAV, or OGG files in the music_dance directory
+1. Place MP3, WAV, or OGG files in the "Let's dance together!" directory
 2. Rename your file to `test_music.mp3` for automatic loading
 3. Or modify the file path in the visualizer code
 
@@ -158,7 +158,7 @@ For enhanced voice interaction, run the voice control modules from the parent di
 ## 🤝 Contributing & Support
 
 ### Contributing
-We welcome contributions to improve the Music Dance Visualizer! You can:
+We welcome contributions to improve "Let's dance together!"! You can:
 - Report bugs and suggest new features
 - Submit improvements for dance styles and visual effects
 - Enhance voice control capabilities
